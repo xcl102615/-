@@ -1,0 +1,42 @@
+package service.shop.impl;
+
+import model.shop.Shop;
+import model.user.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.model.AjaxResult;
+import project.service.BaseService;
+import project.util.ShiroUtil;
+import service.shop.ShopService;
+
+
+@Service
+public class ShopServiceImpl extends BaseService implements ShopService {
+    @Autowired
+    private dao.shop.ShopMapper dao;
+
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+
+    /**
+     * 通过用户登录状态获取商铺信息
+     * @return
+     */
+    public Shop getShopByUser(){
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return null;
+        }
+        Shop shop=new Shop();
+        shop.setUser(user);
+        shop=dao.selectOne(shop);
+        if(shop==null){
+            return null;
+        }
+        shop.getUser().setName(user.getName());
+        return shop;
+    }
+}

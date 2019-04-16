@@ -1,0 +1,16 @@
+package model.food;
+
+import project.model.BaseObject;
+
+public class FoodFormat extends BaseObject {
+
+    private double price;
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+}

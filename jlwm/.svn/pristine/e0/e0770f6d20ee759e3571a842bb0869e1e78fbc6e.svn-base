@@ -1,0 +1,110 @@
+package model.messagePush;
+
+/**
+ * @author ls
+ * @version 创建时间：2019年1月24日 下午4:14:47
+ * @ClassName UserInfo
+ * @Description 关注公众号的用户信息
+ */
+public class MessageUserInfo {
+
+	private String id;
+
+	private String toUserName;
+
+	private String msgType;
+
+	private String event;
+
+	private String nickname;
+
+	private boolean sex;
+
+	private String headimgurl;
+
+	private int subscribe_time;
+
+	private String openid;// 订阅
+
+	private String unionid;// 统一标识
+
+	public String getUnionid() {
+		return unionid;
+	}
+
+	public void setUnionid(String unionid) {
+		this.unionid = unionid;
+	}
+
+	public String getOpenid() {
+		return openid;
+	}
+
+	public void setOpenid(String openid) {
+		this.openid = openid;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getToUserName() {
+		return toUserName;
+	}
+
+	public void setToUserName(String toUserName) {
+		this.toUserName = toUserName;
+	}
+
+	public String getMsgType() {
+		return msgType;
+	}
+
+	public void setMsgType(String msgType) {
+		this.msgType = msgType;
+	}
+
+	public String getEvent() {
+		return event;
+	}
+
+	public void setEvent(String event) {
+		this.event = event;
+	}
+
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public boolean isSex() {
+		return sex;
+	}
+
+	public void setSex(boolean sex) {
+		this.sex = sex;
+	}
+
+	public String getHeadimgurl() {
+		return headimgurl;
+	}
+
+	public void setHeadimgurl(String headimgurl) {
+		this.headimgurl = headimgurl;
+	}
+
+	public int getSubscribe_time() {
+		return subscribe_time;
+	}
+
+	public void setSubscribe_time(int subscribe_time) {
+		this.subscribe_time = subscribe_time;
+	}
+}

@@ -1,0 +1,256 @@
+package service.user.impl;
+
+import dao.user.UserMapper;
+import model.user.Role;
+import model.user.User;
+import net.sf.json.JSONObject;
+import org.aspectj.weaver.loadtime.Aj;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.model.AjaxResult;
+import project.service.BaseService;
+import project.util.JSONAndObject;
+import project.util.MD5;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+import project.util.wx.AesCbcUtil;
+import project.util.wx.Base64Util;
+import project.util.wx.HttpRequest;
+import project.util.wx.WechatPayConstants;
+import service.user.UserService;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+@Service
+public class UserServiceImpl extends BaseService implements UserService {
+
+    private Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    @Autowired
+    private UserMapper dao;
+
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+
+    public AjaxResult updatePwd(Map map) {
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        user = (User) dao.selectOneById(user.getId());//从数据库中获取用户信息
+
+        String passWord = MD5.GetPwd(map.get("password").toString());
+
+        log.info("前端传来的原密码：" + passWord + "- - - - - 数据库中的原密码：" + user.getPassword());
+        if (!user.getPassword().equals(passWord)) { //判断原密码是否相等
+            return AjaxResult.build("0", "密码错误");
+        }
+        user.setPassword(MD5.GetPwd(map.get("newPassword").toString()));//设置新密码并加密
+        int i = dao.updatePwd(user);
+        if (i <= 0) {
+            return AjaxResult.build("0", "修改失败");
+        }
+        return AjaxResult.build("1", "修改成功");
+
+    }
+
+    /**
+     * 解密用户敏感数据
+     *
+     * @param encryptedData 明文,加密数据
+     * @param iv            加密算法的初始向量
+     * @param code          用户允许登录后，回调内容会带上 code（有效期五分钟），开发者需要将 code 发送到开发者服务器后台，使用code 换取 session_key api，将 code 换成 openid 和 session_key
+     * @return
+     */
+    public Map decodeUserInfo(String encryptedData, String iv, String code) {
+        Map map = new HashMap();
+        //小程序唯一标识   (在微信小程序管理后台获取)
+        String wxspAppid = WechatPayConstants.appID;
+        //小程序的 app secret (在微信小程序管理后台获取)
+        String wxspSecret = WechatPayConstants.secret;
+        //授权（必填）
+        String grant_type = "authorization_code";
+
+        //1、向微信服务器 使用登录凭证 code 获取 session_key 和 openid ///
+        //请求参数
+        String params = "appid=" + wxspAppid + "&secret=" + wxspSecret + "&js_code=" + code + "&grant_type=" + grant_type;
+        //发送请求
+        String sr = HttpRequest.sendGet("https://api.weixin.qq.com/sns/jscode2session", params);
+        //解析相应内容（转换成json对象）
+        JSONObject json = JSONObject.fromObject(sr);
+        //获取会话密钥（session_key）
+        String session_key = json.get("session_key").toString();
+        //用户的唯一标识（openid）
+        String openid = (String) json.get("openid");
+
+
+        /***********************************
+         * 保存到session 中
+         * *********************************/
+        Map rs = new HashMap();
+        rs.put("sessionId", session_key);
+        rs.put("openId", openid);
+        ShiroUtil.setAttribute("wxInfo", rs);
+
+        // 2、对encryptedData加密数据进行AES解密 //
+        try {
+            String result = AesCbcUtil.decrypt(encryptedData, session_key, iv, "UTF-8");
+            log.info(result);
+            if (null != result && result.length() > 0) {
+                map.put("status", 1);
+                map.put("msg", "解密成功");
+                JSONObject userInfoJSON = JSONObject.fromObject(result);
+                Map userInfo = new HashMap();
+                userInfo.put("openId", userInfoJSON.get("openId"));
+                userInfo.put("nickName", userInfoJSON.get("nickName"));
+                userInfo.put("gender", userInfoJSON.get("gender"));
+                userInfo.put("city", userInfoJSON.get("city"));
+                userInfo.put("province", userInfoJSON.get("province"));
+                userInfo.put("country", userInfoJSON.get("country"));
+                userInfo.put("avatarUrl", userInfoJSON.get("avatarUrl"));
+                userInfo.put("unionId", userInfoJSON.get("unionId"));
+                map.put("userInfo", userInfo);
+                User user = new User();
+                user.setWxId(openid);
+                user = dao.selectOne(user);
+                if (user == null) {
+                    map.put("isExist", false);
+                    return map;
+                } else {
+                    user.setName(StringUtils.unicodeStr2String(user.getName()));
+                    ShiroUtil.setAttribute("user", user);
+                    ShiroUtil.login(user.getName(), "1212", false);
+
+                    map.put("isExist", true);
+                    return map;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        map.put("status", 0);
+        map.put("msg", "解密失败");
+        return map;
+    }
+
+    public AjaxResult getPhoneNumber(String encryptedData, String iv) {
+
+        String phoneNumber = null;
+
+        Map map = (Map) ShiroUtil.getSession().getAttribute("wxInfo");
+
+        String session_key = map.get("sessionId").toString();
+
+        try {
+            phoneNumber = Base64Util.decrypt(session_key, iv, encryptedData);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        phoneNumber = JSONAndObject.GetStringFromJSON(phoneNumber, "phoneNumber");
+        log.info("解密的手机号:" + phoneNumber);
+        return AjaxResult.build("1", "解密手机号成功", phoneNumber);
+    }
+
+    public AjaxResult loginByPhone(Map map) {
+        return AjaxResult.build("1", "查询成功", dao.loginByPhone(map));
+    }
+
+    /**
+     * 通过手机验证码修改密码
+     *
+     * @param user
+     * @return
+     */
+    public AjaxResult upPwdByPhone(User user) {
+        user.setPassword(MD5.GetPwd(user.getPassword()));
+        int i = dao.upPwdByPhone(user);
+        if (i < 0) {
+            return AjaxResult.build("0", "更改密码失败");
+        }
+        return AjaxResult.build("1", "更改密码成功");
+    }
+
+
+    /**
+     * 通过手机号获取用户
+     *
+     * @param phone
+     * @return
+     */
+    public User getUserByPhone(String phone) {
+        User user = new User();
+        user.setPhone(phone);
+        user = dao.selectOne(user);
+        return user;
+    }
+
+    /**
+     * 通过手机号判断用户是否存在
+     *
+     * @param phone
+     * @return
+     */
+    public AjaxResult getUserPhone(String phone) {
+        boolean result = true;
+        User user = getUserByPhone(phone);
+        if (user == null) {
+            result = false;
+        }
+        return AjaxResult.build("1", "系统响应了你的请求", result);
+    }
+
+    /**
+     * 用户申请注册位骑手
+     * @param user
+     * @return
+     */
+    public AjaxResult riderRegistration(User user){
+        String phone=user.getPhone();
+        User newuser=getUserByPhone(phone);
+        if(newuser==null){
+            return AjaxResult.build("0","请先注册成为用户");
+        }
+        for(Role role:newuser.getRoles()){
+            if(role.getName().equals("delivery")){
+                return  AjaxResult.build("2","当前用户已经是骑手");
+            }
+        }
+        String id=newuser.getId();
+        user.setId(id);
+        user.setPassword(MD5.GetPwd(user.getPassword()));
+        user.setStatus("2");//默认注册时状态值（即待审核）2.待审核 3.审核通过 4.审核不通过
+        int i= dao.update(user);
+        if(i>0){
+            return  AjaxResult.build("1","注册成功！等待审核");
+        }
+        return  AjaxResult.build("0","注册失败");
+    }
+
+    /**
+     * 删除骑手角色
+     * @param user
+     * @return
+     */
+    public AjaxResult delRole(User user) throws Exception {
+        Map map =new HashMap();
+        map.put("user",user.getId());
+        map.put("role","4");
+        user.setStatus("1");//成为普通用户
+
+        int i=dao.update(user);
+        if(i>0){
+            return AjaxResult.build(String.valueOf(dao.delRole(map)),"已删除骑手角色");
+        }
+       throw new Exception("操作失败");
+    }
+
+}
+

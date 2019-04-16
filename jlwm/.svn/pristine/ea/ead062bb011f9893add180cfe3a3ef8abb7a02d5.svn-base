@@ -1,0 +1,132 @@
+package controller.admin;
+
+import model.user.User;
+import org.aspectj.weaver.loadtime.Aj;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import project.model.AjaxResult;
+import service.admin.AdminService;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RequestMapping(value = "admin/user")
+@Controller
+public class AdminController {
+    @Autowired
+    private AdminService service;
+    /***
+     * 获取所有的订单
+     * @return
+     */
+    @RequestMapping("getAllOrders")
+    public String getAllOrders(Map map){
+        map.put("orders",service.getAllOrders().getObj());
+        return "/admin/order/orders";
+    }
+
+    @RequestMapping("getOrdersByStatus/{id}")
+    public String getOrdersByStatus(@PathVariable("id")Integer id,Map map){
+        map.put("orders",service.getOrdersByStatus(id).getObj());
+        return "/admin/order/undoOrders";
+    }
+    @RequestMapping("getOrderDetails/{id}")
+    public String getOrderDetails(@PathVariable("id")String id,Map map){
+        map.put("order",service.getOrderDetails(id).getObj());
+        return "/admin/order/orderDetails";
+    }
+    @ResponseBody
+    @RequestMapping("deleteOrder/{id}")
+    public AjaxResult deleteOrder(@PathVariable("id")String id){
+        return service.deleteOrder(id);
+    }
+    /***
+     * 获取所有骑手
+     * @return
+     */
+    @RequestMapping("getAllDelivery")
+    public AjaxResult getAllDelivery(){
+        return service.getAllDelivery();
+    }
+
+    /***
+     * 获取所有待审核的骑手
+     * @return
+     */
+    @RequestMapping("getAllDeliveryToexamine")
+    public AjaxResult getAllDeliveryToexamine(){
+        return service.getAllDeliveryToexamine();
+    }
+
+
+    /***
+     * 获取所有的店主
+     * @return
+     */
+    @RequestMapping("getAllShopUser")
+    public AjaxResult getAllShopUser(){
+        return service.getAllShopUser();
+    }
+
+    /***
+     * 获取店家的提现申请
+     * @return
+     */
+    @RequestMapping("getAllShopApply")
+    public AjaxResult getAllShopApply(){
+        return service.getAllShopApply();
+    }
+    /***
+     * 获取骑手的提现申请
+     * @return
+     */
+    @RequestMapping("getAllDeliveryApply")
+    public AjaxResult getAllDeliveryApply(){
+        return service.getAllDeliveryApply();
+    }
+    /***
+     * 获取食品
+     * @return
+     */
+    @RequestMapping("getAllFood")
+    public AjaxResult getAllFood(){
+        return service.getAllFood();
+    }
+
+    /**
+     * 获取平台类别
+     * @return
+     */
+    @RequestMapping("getAllType")
+    public AjaxResult getAllType(){
+        return service.getAllType();
+    }
+
+    /***
+     * 获取轮播图
+     * @return
+     */
+    @RequestMapping("getAllCarousel")
+    public AjaxResult getAllCarousel(){
+        return service.getAllCarousel();
+    }
+
+    /***
+     * 获取所有的店铺流水
+     * @return
+     */
+    @RequestMapping("getAllShopProfit")
+    public AjaxResult getAllShopProfit(){
+        return service.findAllShopProfit();
+    }
+
+    /***
+     * 获取所有的骑手流水
+     * @return
+     */
+    @RequestMapping("getAllDeliveryMoney")
+    public AjaxResult getAllDeliveryMoney(){
+        return service.getDeliveryMoney();
+    }
+}

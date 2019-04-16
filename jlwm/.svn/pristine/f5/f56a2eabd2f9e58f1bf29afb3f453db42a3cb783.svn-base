@@ -1,0 +1,13 @@
+package dao.deliveryOrder;
+
+import model.deliveryOrder.DeliveryMoney;
+import project.dao.BaseDao;
+
+import java.util.Map;
+
+public interface DeliveryMoneyMapper extends BaseDao {
+    Double findBalance(DeliveryMoney deliveryMoney);//获取用户金额
+    Double selectMoney(String uid);
+    Object insertMoney(Map map);
+    Object updateMoney(Map map);
+}

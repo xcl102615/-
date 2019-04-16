@@ -1,0 +1,144 @@
+package model.order;
+
+import model.address.Address;
+import model.shop.Shop;
+import model.user.User;
+import project.model.BaseObject;
+
+import java.util.List;
+
+
+/****
+ * 订单
+ */
+public class Order extends BaseObject {
+    private User user;
+    //    用户
+    private Shop shop;
+    //    店铺
+    private int userStatus;
+    //    0 未支付 1 已支付
+    private int shopStatus;
+    //    0 未接单 1 已接单
+    private int deliveryStatus;
+//  0.未接单 1 已接单 2. 已取件 3. 配送中 4. 已送达
+    private List<OrderDetails>orderDetails;
+    //订单详情
+    private double deliveryPrice;
+    //    配送费
+    private double discountMoney;
+    //    活动减免
+    private double realPay;
+    //    实际支付
+    private double totalPrice;
+    //    总价
+    private String remarks;
+    //    备注
+    private Address address;
+    //    地址信息
+    private String deliveryType;
+    //    配送方式
+    public User getUser() {
+        return user;
+    }
+
+    public int getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(int userStatus) {
+        this.userStatus = userStatus;
+    }
+
+    public int getShopStatus() {
+        return shopStatus;
+    }
+
+    public void setShopStatus(int shopStatus) {
+        this.shopStatus = shopStatus;
+    }
+
+    public int getDeliveryStatus() {
+        return deliveryStatus;
+    }
+
+    public void setDeliveryStatus(int deliveryStatus) {
+        this.deliveryStatus = deliveryStatus;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Shop getShop() {
+        return shop;
+    }
+
+    public void setShop(Shop shop) {
+        this.shop = shop;
+    }
+
+    public List<OrderDetails> getOrderDetails() {
+        return orderDetails;
+    }
+
+    public void setOrderDetails(List<OrderDetails> orderDetails) {
+        this.orderDetails = orderDetails;
+    }
+
+    public double getDeliveryPrice() {
+        return deliveryPrice;
+    }
+
+    public void setDeliveryPrice(double deliveryPrice) {
+        this.deliveryPrice = deliveryPrice;
+    }
+
+    public double getDiscountMoney() {
+        return discountMoney;
+    }
+
+    public void setDiscountMoney(double discountMoney) {
+        this.discountMoney = discountMoney;
+    }
+
+    public double getRealPay() {
+        return realPay;
+    }
+
+    public void setRealPay(double realPay) {
+        this.realPay = realPay;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public String getDeliveryType() {
+        return deliveryType;
+    }
+
+    public void setDeliveryType(String deliveryType) {
+        this.deliveryType = deliveryType;
+    }
+}

@@ -1,0 +1,85 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ include file="../../header/admin.jsp" %>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>管理员登录</title>
+</head>
+<body>
+<div class="page-wrapper flex-row align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card p-4">
+                    <div class="card-header text-center text-uppercase h4 font-weight-light">
+                        登录
+                    </div>
+
+                    <div class="card-body py-5">
+                        <div class="form-group">
+                            <label class="form-control-label">手机号</label>
+                            <input type="text" id="phone" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-control-label">密码</label>
+                            <input type="password" id="password" class="form-control">
+                        </div>
+
+                        <div class="custom-control custom-checkbox mt-4">
+                            <input type="checkbox" class="custom-control-input" id="login">
+                            <label class="custom-control-label" for="login">记住账号密码</label>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-6">
+                                <button type="submit" id="submit" class="btn btn-primary px-5">登录</button>
+                            </div>
+
+                            <div class="col-6">
+                                <a href="#" class="btn btn-link">忘记密码?</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        //登录
+        $("#submit").click(function () {
+            var obj = new Object();
+            obj.phone = $("#phone").val();
+            obj.password = $("#password").val();
+            console.info(obj);
+            doDataAll("<%=basePath%>/user/login", obj, function (data) {
+                if (data.code <= 0) {
+                    alert("账号或密码错误");
+                } else {
+                    var relst=false;
+                    //验证用户是否有骑手权限
+                    $.each(data.obj.roles,function () {
+                        if(this.name=="administrator"){
+                            relst=true;
+                        }
+                    })
+                    if(relst){
+                        location.href="<%=basePath%>/admin/admin/index.jsp";
+                    }else{
+                        doDataAllAsc("<%=basePath%>/user/logOut", "", function (data) {});
+                        alert("你不是管理员!");
+                    }
+
+                }
+            })
+        })
+    })
+</script>
+</body>
+</html>

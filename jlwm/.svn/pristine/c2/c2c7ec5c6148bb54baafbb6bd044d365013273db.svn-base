@@ -1,0 +1,138 @@
+package controller.deliveryOrder.impl;
+
+
+import model.deliveryOrder.DeliveryOrder;
+import model.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+/***
+ * 用户控制层接口
+ */
+@RequestMapping(value = "deliveryOrder")
+@RestController
+public class DeliveryOrderController implements controller.deliveryOrder.DeliveryOrderController {
+
+    private Logger log = LoggerFactory.getLogger(DeliveryOrderController.class);
+
+    @Autowired
+    private service.deliveryOrder.impl.DeliveryOrderServiceImpl bll;
+
+    /**
+     * 骑手接单
+     *
+     * @param deliveryOrder
+     * @return
+     */
+    @PostMapping(value = "addDeliveryOrder")
+    public AjaxResult addDeliveryOrder(@RequestBody DeliveryOrder deliveryOrder) {
+        if (StringUtils.objIsNull(deliveryOrder)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("骑手接单 addDeliveryOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        deliveryOrder.setId(StringUtils.getUUID());//创建id
+        deliveryOrder.setCreateDate(new Date());//创建时间
+        deliveryOrder.setName(user.getName());
+        deliveryOrder.setUser(user);//设置骑手用户
+        deliveryOrder.setStatus("配送中");
+        deliveryOrder.setDescription("骑手已接单");
+        return bll.save(deliveryOrder);
+    }
+
+    /**
+     * 查询骑手所有订单
+     *
+     * @param deliveryOrder
+     * @return
+     */
+    @PostMapping(value = "findDeliveryOrder")
+    public AjaxResult findDeliveryOrder(@RequestBody DeliveryOrder deliveryOrder) {
+        if (StringUtils.objIsNull(deliveryOrder)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入骑手订单查找 findDeliveryOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        //设置查找条件
+        Map map = new HashMap();
+        map.put("user", user);
+        map.put("canUse",true);
+        return bll.select(map);
+    }
+
+    /**
+     * 骑手送达
+     *
+     * @param deliveryOrder  //要传配送费money
+     * @return
+     */
+    @PostMapping(value = "updateDeliveryOrder")
+    public AjaxResult updateDeliveryOrder(@RequestBody DeliveryOrder deliveryOrder) {
+        if (StringUtils.objIsNull(deliveryOrder)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+
+        log.info("骑手送达 updateDeliveryOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        deliveryOrder.setUser(user);
+        deliveryOrder.setStatus("已完成");
+        return bll.update(deliveryOrder);
+    }
+
+    /**
+     * 骑手订单删除
+     *
+     * @param deliveryOrder
+     * @return
+     */
+    @PostMapping(value = "delDeliveryOrder")
+    public AjaxResult delDeliveryOrder(@RequestBody DeliveryOrder deliveryOrder) {
+        if (StringUtils.objIsNull(deliveryOrder)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入骑手订单删除 delDeliveryOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        deliveryOrder.setUser(user);
+        return bll.delete(deliveryOrder);
+    }
+
+    /**
+     * 查询配送中的订单
+     * @return
+     */
+    @PostMapping(value = "findDistribution")
+    public AjaxResult findDistribution(){
+        log.info("查询配送中的订单 findDistribution");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+       return bll.findDistribution(user);
+    }
+
+
+}

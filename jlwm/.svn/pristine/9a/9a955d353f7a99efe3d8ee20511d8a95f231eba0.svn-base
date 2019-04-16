@@ -1,0 +1,54 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="../../header/login.jsp" %>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>骑手注册</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Bluth Company">
+
+  </head>
+  <body>
+    <div id="wrap">
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span12">
+          	<div class="row-fluid">
+				<div class="widget container-narrow">
+					<div class="widget-header">
+						<i class="icon-edit"></i>
+						<h5>创建新帐户</h5>
+					</div>  
+					<div class="widget-body clearfix" style="padding:25px;">
+						<form action="#" method="post">
+		      				<div style="padding:10px 0">
+		      					<a style="" href="#" class="btn btn-large btn-block btn-primary"><i class="icon-facebook-sign"></i>手机号注册</a>
+		      				</div>
+		      				<br>
+		      				<legend style="font-size: 16px; color:#555;" class=""><i class="icon-envelope"></i>您也可以通过电子邮件注册 </legend>
+							<div class="control-group ">
+								<label for="form_username">昵称:</label>
+								<div class="controls"><input class="btn-block" type="text" name="username" id="form_username"></div>
+							</div>
+
+							<div class="control-group ">
+								<label for="form_password">密码:</label>
+								<div class="controls"><input class="btn-block" type="password" name="password" id="form_password"></div>
+							</div>
+
+							<div class="control-group ">
+								<label for="form_email">邮箱:</label>
+								<div class="controls"><input class="btn-block" type="text" name="email" id="form_email"></div>
+							</div>
+							<button type="submit" class="btn btn-large btn-block">注册</button>
+						</form>
+					</div>  
+				</div>  
+        	</div><!--/row-fluid-->
+        </div><!--/span10-->
+      </div><!--/row-fluid-->
+    </div><!--/.fluid-container-->
+    </div><!-- wrap ends-->
+
+  </body>
+</html>

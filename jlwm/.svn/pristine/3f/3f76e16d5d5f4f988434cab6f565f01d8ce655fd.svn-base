@@ -1,0 +1,55 @@
+package model.address;
+
+import project.model.BaseObject;
+
+public class Address extends BaseObject {
+    private String uid;
+    //    用户Id
+    private String phone;
+    //    手机
+    private boolean isDefault;
+    //默认地址
+    private String latitude;
+    //    经度
+    private String longitude;
+    //    纬度
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
+    }
+}

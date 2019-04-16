@@ -1,0 +1,9 @@
+package dao.user;
+
+import model.user.User;
+import project.dao.BaseDao;
+
+public interface UserMapper extends BaseDao {
+
+    int updatePwd(User user);//密码修改
+}

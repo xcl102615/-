@@ -1,0 +1,102 @@
+package service.wchatPay;
+
+import model.order.Order;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestHeader;
+import project.model.AjaxResult;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+import project.util.wx.PayUtil;
+import project.util.wx.RealipUtil;
+import project.util.wx.WechatPayConstants;
+import service.order.impl.OrderServiceImpl;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+@Service
+public class WchatPaySercive {
+    private static final Logger logger = LoggerFactory.getLogger(WchatPaySercive.class);
+    @Autowired
+    private OrderServiceImpl orderService;
+    public Map<String, String> unifiedorder(HttpServletRequest request, String out_trade_no) {
+
+         Order order=(Order) orderService.selectOneById(out_trade_no).getObj();
+         if(order==null){
+             Map map=new HashMap();
+             map.put("code",0);
+             map.put("msg","支付失败，订单不存在");
+             return map;
+         }
+         //从订单中获取实付金额
+        String realPay=String.valueOf((new Double(order.getRealPay()*100)).intValue() );
+        SortedMap<String, String> params = new TreeMap<String, String>();
+
+        String nonce_str= StringUtils.GetRandom(24);
+        //TODO openId从缓存中获取
+        Map map=(Map) ShiroUtil.getSession().getAttribute("wxInfo");
+        String openId=map.get("openId").toString();
+
+        try {
+            params.put("appid", WechatPayConstants.appID);
+            params.put("mch_id",WechatPayConstants.MCH_ID.trim());
+            params.put("nonce_str", nonce_str);
+            params.put("body", "计里科技");
+            params.put("out_trade_no", out_trade_no);
+            params.put("total_fee", realPay);
+            params.put("spbill_create_ip", RealipUtil.getIpAddress(request));
+            params.put("trade_type", "JSAPI");
+            params.put("notify_url", "http://xcx.iooint.com/jl_xcx/payNotify.do?orderId="+order.getId());// 回调路径
+            params.put("openid", openId);
+            params.put("sign_type", "MD5");
+            // 生成签名
+            String preStr = PayUtil.createLinkString(params);
+            logger.info("-------------------------------->"+params);
+            logger.info(preStr);
+            String mySign = PayUtil.sign(preStr, WechatPayConstants.key, "utf-8").toUpperCase();
+            params.put("sign", mySign);
+            // String result = HttpRequest.sendPost(WechatPayConstants.PAY_PATH,
+            // PayUtil.GetMapToXML(params));
+            String result = PayUtil.httpRequest(WechatPayConstants.PAY_PATH, "POST", PayUtil.GetMapToXML(params));// 不需要验证证书的方法
+            System.out.println(result);
+
+            Map<String, String> notifyMap = PayUtil.doXMLParse(result);
+
+            // 二次签名
+            if ("SUCCESS".equals(notifyMap.get("return_code"))
+                    && notifyMap.get("return_code").equals(notifyMap.get("result_code"))) {
+
+                String prepay_id = notifyMap.get("prepay_id");// 返回的预付单信息
+                logger.info(prepay_id);
+                String timeStamp = String.valueOf(System.currentTimeMillis() / 1000);
+                // 拼接签名需要的参数
+                String stringSignTemp = "appId=" + WechatPayConstants.appID + "&nonceStr=" + nonce_str
+                        + "&package=prepay_id=" + prepay_id + "&signType=MD5&timeStamp=" + timeStamp;
+
+                // 签名算法生成签名
+                String paySign = PayUtil.sign(stringSignTemp, WechatPayConstants.key, "utf-8").toUpperCase();
+
+                SortedMap<String, String> payInfo = new TreeMap<String, String>();
+
+                payInfo.put("appId", WechatPayConstants.appID);
+                payInfo.put("nonceStr", nonce_str);
+                payInfo.put("package", "prepay_id=" + prepay_id);
+                payInfo.put("signType", "MD5");
+                payInfo.put("timeStamp", timeStamp);
+                payInfo.put("paySign", paySign);
+                return payInfo;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+}

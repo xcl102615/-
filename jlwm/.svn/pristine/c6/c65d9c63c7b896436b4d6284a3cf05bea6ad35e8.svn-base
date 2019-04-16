@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <!--配置资源文件-->
+                <value>classpath*:dbconfig.properties</value>
+                <value>classpath*:shiro-config.properties</value>
+                <value>classpath*:redis.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <import resource="spring-beans.xml"/>
+    <import resource="spring-dataSource.xml"></import>
+    <import resource="spring-shiro.xml"></import>
+    <import resource="spring-redis.xml"></import>
+</beans>

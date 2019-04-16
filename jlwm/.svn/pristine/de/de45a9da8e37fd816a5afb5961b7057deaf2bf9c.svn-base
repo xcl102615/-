@@ -1,0 +1,94 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ include file="../../../header/admin.jsp" %>
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    计里外卖所有在职配送员
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>头像</th>
+                                <th>性别</th>
+                                <th>手机</th>
+                                <th>银行卡</th>
+                                <th>开户行</th>
+                                <th>余额</th>
+                                <th>注册时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="content">
+                            <%--<tr>
+                                <td>用户名</td>
+                                <td class="text-nowrap">性别</td>
+                                <td>年龄</td>
+                                <td>手机</td>
+                                <td>银行卡</td>
+                                <td>注册时间</td>
+                                <td>状态</td>
+                                <td><button class="btn btn-rounded btn-danger">禁用</button></td>
+
+                            </tr>--%>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function taskUI(task) {
+        var str = "";
+        if (task != null) {
+            str += '<tr>\n' +
+                '                                <td>'+task.name+'</td>\n' +
+                '                                <td><img src=' + task.photo + ' style="width: 50px" height="50px"></td>\n' +
+                '                                <td>'+(task.sex=="1"?"男":"女")+'</td>\n' +
+                '                                <td>'+task.phone+'</td>\n' +
+                '                                <td>'+task.bankCard+'</td>\n' +
+                '                                <td>'+task.bankCardInfo+'</td>\n' +
+                '                                <td>'+task.description+'元</td>\n' +
+                '                                <td>'+task.createDate+'</td>\n' +
+                '                                <td>'+(task.status=="3"?"正常":"异常")+'</td>\n' +
+                '                                <td><button id='+task.id+' class="btn btn-rounded btn-danger">禁用</button></td>\n' +
+                '\n' +
+                '                            </tr>'
+            return str;
+        }
+    }
+    $(function () {
+
+        doDataAllAsc("<%=basePath%>/admin/user/getAllDelivery","",function (data) {
+            console.info(data)
+            $(data.obj).each(function () {
+                $("#content").append(taskUI(this));
+            })
+        })
+        $("body").on("click","button.btn-danger",function () {
+            var id=$(this).attr("id");
+            var user=new Object();
+            user.id=id;
+            if(confirm("确定禁用该员工?\n确定操作后默认该员工已离职！")){
+                doDataAllAsc("<%=basePath%>/user/delRoleForDelivery",user,function (data) {
+                    if(data.code>0){
+                        alert("已禁用")
+                        window.location.reload();
+                    }
+                    else{
+                        alert("操作失败！")
+                        window.location.reload();
+                    }
+                })
+            }
+        })
+    })
+</script>

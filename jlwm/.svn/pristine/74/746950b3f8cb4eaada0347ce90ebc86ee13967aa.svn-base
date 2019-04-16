@@ -1,0 +1,63 @@
+package service.shop.impl;
+
+import model.shop.Shop;
+import model.user.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.model.AjaxResult;
+import project.service.BaseService;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+import service.shop.ShopService;
+
+import java.util.List;
+import java.util.Map;
+
+
+@Service
+public class ShopServiceImpl extends BaseService implements ShopService {
+    @Autowired
+    private dao.shop.ShopMapper dao;
+
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+
+    /**
+     * 通过用户登录状态获取商铺信息
+     * @return
+     */
+    public Shop getShopByUser(){
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return null;
+        }
+        Shop shop=new Shop();
+        shop.setUser(user);
+        shop=dao.selectOne(shop);
+        if(shop==null){
+            return null;
+        }
+        shop.getUser().setName(user.getName());
+        return shop;
+    }
+    public AjaxResult findShopByType(String typeId){
+        return AjaxResult.build("1","系统响应了你的请求",dao.findShopByType(typeId));
+    }
+
+    @Override
+    public AjaxResult select(Map map) {
+        List<Object> list=dao.select(map);
+        if (list.size()==0){
+            return AjaxResult.build("0","未查询到数据");
+        }
+        for (Object o:list
+             ) {
+            Shop shop=(Shop)o;
+            shop.getUser().setName(StringUtils.unicode2String(shop.getUser().getName()));
+        }
+        return AjaxResult.build("1","已查询到数据",list);
+    }
+}

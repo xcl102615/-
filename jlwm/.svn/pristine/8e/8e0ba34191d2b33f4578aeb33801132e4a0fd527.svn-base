@@ -1,0 +1,8 @@
+package dao.deliveryOrder;
+
+import model.deliveryOrder.DeliveryMoney;
+import project.dao.BaseDao;
+
+public interface DeliveryMoneyMapper extends BaseDao {
+    Double findBalance(DeliveryMoney deliveryMoney);//获取用户金额
+}

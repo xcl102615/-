@@ -1,0 +1,26 @@
+package controller.protal;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import service.protal.ProtalService;
+
+@RestController
+public class ProtalController {
+    @Autowired
+    private ProtalService service;
+
+    @RequestMapping("index")
+    public AjaxResult index(){
+        return service.getIndexInfo();
+    }
+
+    @RequestMapping("findByType")
+    public AjaxResult findByType(@RequestParam("id")String id){
+        return service.selectFoodsByType(id);
+    }
+}

@@ -1,0 +1,82 @@
+package controller.type.impl;
+
+import controller.type.TypeController;
+import model.type.Type;
+import org.apache.commons.logging.LogFactory;
+import org.apache.xmlbeans.impl.xb.xsdschema.Public;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import project.util.StringUtils;
+import service.type.impl.TypeServiceImpl;
+
+import java.util.Date;
+import java.util.Map;
+import org.slf4j.Logger;
+
+@RestController
+@RequestMapping("type")
+public class TypeControllerImpl implements TypeController {
+    private Logger log= (Logger) LoggerFactory.getLogger(TypeControllerImpl.class);
+    @Autowired
+    private TypeServiceImpl bll;
+
+    /**
+     * 添加外卖平台首页大分类（管理端控制）
+     * @param type
+     * @return
+     */
+    @PostMapping(value="/addType")
+    public AjaxResult addType(@RequestBody Type type){
+        if (StringUtils.objIsNull(type)) {
+            return AjaxResult.build("0","对象不能为空");
+        }
+        log.info("进入添加外卖平台首页大分类方法：addType()");
+        type.setId(StringUtils.getUUID());
+        type.setCreateDate(new Date());
+        return bll.save(type);
+    }
+
+    /**
+     * 删除外卖平台首页大分类（管理端控制）
+     * @param type  id值
+     * @return
+     */
+    public AjaxResult deleteType(@RequestBody Type type){
+        if(StringUtils.objIsNull(type)){
+            return AjaxResult.build("0","对象不能为空");
+        }
+        log.info("进入删除外卖平台首页大分类方法：deleteType()");
+        return bll.update(type);
+    }
+
+    /**
+     *  修改外卖平台首页大分类方法：updateType()
+     * @param type id值
+     * @return
+     */
+    public AjaxResult updateType(@RequestBody Type type){
+        if(StringUtils.objIsNull(type)){
+            return  AjaxResult.build("O","对象不能为空！");
+        }
+        log.info("进入修改外卖平台首页大分类方法：updateType()");
+        return  bll.update(type);
+    }
+
+    /**
+     * 根据条件查找外卖平台首页大分类（管理端控制）
+     * @param map
+     * @return
+     */
+    public AjaxResult findType(@RequestBody Map map){
+        if (StringUtils.objIsNull(map)){
+            return AjaxResult.build("0","对象不能为空！");
+        }
+        log.info("进入根据条件查找外卖平台首页大分类方法：findType()");
+        return  bll.select(map);
+    }
+}

@@ -1,0 +1,257 @@
+package controller.user.impl;
+
+import controller.user.UserDao;
+import model.user.Role;
+import model.user.User;
+import org.apache.shiro.authz.annotation.RequiresUser;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.*;
+import project.model.AjaxResult;
+import project.util.JSONAndObject;
+import project.util.MD5;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+import service.user.impl.UserServiceImpl;
+
+import javax.validation.Valid;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+/***
+ * 用户控制层接口
+ */
+@RequestMapping(value = "user")
+@RestController
+public class UserController implements UserDao {
+    @Autowired
+    private UserServiceImpl userService;
+
+    private Logger log = LoggerFactory.getLogger(UserController.class);
+
+    /***
+     * 用户登录接口
+     * @param user 前台用户登录数据对象
+     * @return
+     */
+    @RequestMapping(value = "login", method = RequestMethod.POST)
+    public Object login(@RequestBody User user) {
+        if (user == null) {
+            return AjaxResult.build("-1", "参数错误!");
+        }
+        user.setPassword(MD5.GetPwd(user.getPassword()));
+        AjaxResult result = userService.selectOne(user);
+        user = (User) result.getObj();
+        if (result.getObj() == null) {
+            return AjaxResult.build("0", "用户名或密码错误");
+        }
+        user.setName(StringUtils.unicode2String(user.getName()));
+        //存在用户存入session中
+        ShiroUtil.setAttribute("user", result.getObj());
+//        shiro 登录操作 不执行会拦截请求 简单的采用了 session验证。
+        ShiroUtil.login(user.getName(), user.getPassword(), false);
+        //清空密码不返回给前端
+        user.setPassword(null);
+        return AjaxResult.build("1", "登录成功!", user);
+    }
+
+    /**
+     * 解密用户敏感数据
+     *
+     * @param map 明文,加密数据
+     *            加密算法的初始向量
+     *          用户允许登录后，回调内容会带上 code（有效期五分钟），开发者需要将 code 发送到开发者服务器后台，使用code 换取 session_key api，将 code 换成 openid 和 session_key
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/decodeUserInfo", method = RequestMethod.POST)
+    public Map decodeUserInfo(@RequestBody Map map) {
+        if (map.get("encryptedData")== null ||map.get("encryptedData") == "") {
+            map.put("返回信息", "encryptedData字段不能为空！");
+            return map;
+        } else if (map.get("iv") == null || map.get("iv") == "") {
+            map.put("返回信息", "iv字段不能为空！");
+            return map;
+        } else if (map.get("code") == null || map.get("code") == "") {
+            map.put("返回信息", "code字段不能为空！");
+            return map;
+        }
+        String encryptedData=map.get("encryptedData").toString();
+        String iv=map.get("iv").toString();
+        String code=map.get("code").toString();
+
+        return  userService.decodeUserInfo(encryptedData, iv, code);
+    }
+
+    @PostMapping(value = "wxLogin")
+    public Object wxLogin() {
+        return null;
+    }
+
+    /***
+     * 用户安全注销登录接口
+     * @return 操作结果
+     */
+    @RequestMapping(value = "logOut")
+    public Object logOut() {
+        ShiroUtil.invalidate();
+        return AjaxResult.build("1", "注销登陆");
+    }
+
+    /***
+     * 用户注册接口
+     * @param user 表单数据 或json对象
+     * @param result 表单校验 无需传递
+     * @return 操作返回状态
+     */
+    @PostMapping(value = "reg")
+    public Object register(@Valid @RequestBody User user, BindingResult result) {
+        if (result.hasErrors()) {
+            List<ObjectError> errorList = result.getAllErrors();
+            return AjaxResult.build("-1", "注册失败", errorList);
+        }
+//       初始化用户Id
+        user.setId(StringUtils.getUUID());
+        //md5盐值加密
+        user.setCreateDate(new Date());
+//      账号创建的时间
+        user.setPassword(MD5.GetPwd(user.getPassword()));
+        return userService.save(user);
+    }
+
+    /***
+     *
+     * @param user
+     * @param result
+     * @return
+     */
+    @RequiresUser
+    @PostMapping(value = "update")
+    public Object updateUserInfo(@Valid @RequestBody User user, BindingResult result) {
+        if (result.hasErrors()) {
+            List<ObjectError> errorList = result.getAllErrors();
+            return AjaxResult.build("-1", "数据格式不正确", errorList);
+        }
+        return userService.update(user);
+    }
+
+    /***
+     * 修改密码
+     * @param map
+     * @return
+     */
+    @RequiresUser
+    @PostMapping(value = "updatePwd")
+    public AjaxResult updatePwd(@RequestBody Map map) {
+        if (map.get("password") == null || map.get("newPassword") == null) {
+            return AjaxResult.build("0", "原密码或新密码不能为空");
+        }
+        log.info("进入修改密码 updatePwd()");
+        return userService.updatePwd(map);
+    }
+
+    /**
+     * 获取登录用户信息
+     *
+     * @return
+     */
+    @RequiresUser
+    @PostMapping(value = "getCurrentUser")
+    public AjaxResult getCurrentUser() {
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        return AjaxResult.build("1", "获取用户信息", user);
+    }
+
+    @PostMapping(value = "checkPermission")
+    public AjaxResult checkPermission() {
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        boolean flag=false;
+        for (Role role:user.getRoles()
+             ) {
+            if (role.getName().equals("delivery")){
+                flag=true;
+            }
+        }
+        if (!flag){
+            ShiroUtil.invalidate();
+            return AjaxResult.build("-1","你还不是骑手");
+        }
+        return AjaxResult.build("1", "权限验证通过", 1);
+    }
+
+    /*
+     * 揭秘用户手机号
+     */
+    @RequestMapping(value = "/getPhoneNumber")
+    @ResponseBody
+    public Object getPhoneNumber(@RequestBody Map map) {
+        if (map.get("encryptedData") == null) {
+            return AjaxResult.build("0", "encrypData参数为空！");
+        } else if (map.get("iv") == null) {
+            return AjaxResult.build("0", "iv参数为空！");
+        }
+
+        String encryptedData=map.get("encryptedData").toString();
+        String iv=map.get("iv").toString();
+        return userService.getPhoneNumber(encryptedData, iv);
+    }
+
+    /**
+     * 通过微信登录注册
+     * @param map
+     * @return
+     */
+    @PostMapping(value = "wxRegister")
+    public AjaxResult wxRegister(@RequestBody Map map){
+        if(map.get("userPhone")==null){
+            return AjaxResult.build("0","手机号不能为空");
+        }
+        if(map.get("userInfo")==null){
+            return AjaxResult.build("0","用户信息不能为空");
+        }
+        String phone=map.get("userPhone").toString();
+        JSONObject jsonObject=JSONAndObject.GetJSONObject(map.get("userInfo").toString());
+        //       初始化用户Id
+        User user=new User();
+        user.setId(StringUtils.getUUID());
+        user.setCreateDate(new Date());
+//      账号创建的时间
+        user.setWxId(jsonObject.get("openId").toString());
+        user.setName(StringUtils.ToUnicode(jsonObject.get("nickName").toString()));
+        user.setSex(jsonObject.get("gender").toString());
+        user.setPhoto(jsonObject.get("avatarUrl").toString());
+        user.setUnionid(jsonObject.get("unionid").toString());
+        user.setStatus("1");
+        user.setPhone(phone);
+        int i= Integer.parseInt(userService.save(user).getCode());
+        if(i<=0){
+            return AjaxResult.build("0","注册失败");
+        }
+        log.info("注册成功");
+        user=new User();
+        user.setWxId(jsonObject.get("openId").toString());
+        AjaxResult result = userService.selectOne(user);
+        user = (User) result.getObj();
+        if (result.getObj() == null) {
+            return AjaxResult.build("0", "用户名或密码错误");
+        }
+        user.setName(StringUtils.unicode2String(user.getName()));
+        ShiroUtil.setAttribute("user",user);
+        ShiroUtil.login(user.getName(), "******", false);
+        user.setPassword("");
+        return AjaxResult.build("1","登录成功",user);
+    }
+
+
+}

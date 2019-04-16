@@ -1,0 +1,108 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ include file="../../../header/admin.jsp" %>
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    外卖配送员审核
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>性别</th>
+                                <th>年龄</th>
+                                <th>手机</th>
+                                <th>银行卡</th>
+                                <th>注册时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="content">
+                            <%--<tr>
+                                <td>用户名</td>
+                                <td class="text-nowrap">性别</td>
+                                <td>年龄</td>
+                                <td>手机</td>
+                                <td>银行卡</td>
+                                <td>注册时间</td>
+                                <td>状态</td>
+                                <td><button class="btn btn-rounded btn-danger">禁用</button></td>
+
+                            </tr>--%>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function taskUI(task) {
+        var str = "";
+        if (task != null) {
+            str += '<tr>\n' +
+                '                                <td>'+task.name+'</td>\n' +
+                '                                <td class="text-nowrap">'+task.sex+'</td>\n' +
+                '                                <td>'+task.age+'</td>\n' +
+                '                                <td>'+task.phone+'</td>\n' +
+                '                                <td>银行卡</td>\n' +
+                '                                <td>'+task.createDate+'</td>\n' +
+                '                                <td>'+(task.status=="1"?"启用":"待审核")+'</td>\n' +
+                '                                <td><button id='+task.id+' class="btn btn-rounded btn-success">通过</button><button id='+task.id+' class="btn btn-rounded btn-danger">禁用</button></td>\n' +
+                '\n' +
+                '                            </tr>'
+            return str;
+        }
+    }
+    $(function () {
+
+        doDataAllAsc("<%=basePath%>/admin/user/getAllDeliveryToexamine","",function (data) {
+            console.info(data)
+            $(data.obj).each(function () {
+                $("#content").append(taskUI(this));
+            })
+        })
+        $("body").on("click","button.btn-success",function () {
+
+            var id=$(this).attr("id");
+            var user=new Object();
+            user.id=id;
+            user.status="3";
+            doDataAllAsc("<%=basePath%>/admin/user/auditedRider",user,function (data) {
+                if(data.code>0){
+                    alert("审核通过")
+                    window.location.reload();
+                }
+                else{
+                    alert("审核失败！")
+                    window.location.reload();
+                }
+            })
+        })
+        $("body").on("click","button.btn-danger",function () {
+            var id=$(this).attr("id");
+            var user=new Object();
+            user.id=id;
+            user.status="4"
+            if(confirm("确定不通过审核？")){
+                doDataAllAsc("<%=basePath%>/user/updateStatus",user,function (data) {
+                    if(data.code>0){
+                        alert("操作成功")
+                        window.location.reload();
+                    }
+                    else{
+                        alert("操作失败！")
+                        window.location.reload();
+                    }
+                })
+            }
+        })
+    })
+</script>

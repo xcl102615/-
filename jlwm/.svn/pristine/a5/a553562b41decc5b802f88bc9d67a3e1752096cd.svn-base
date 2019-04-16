@@ -1,0 +1,173 @@
+package service.order.impl;
+
+import model.deliveryOrder.DeliveryOrder;
+import model.order.Order;
+import model.shop.Shop;
+import model.user.User;
+import org.aspectj.weaver.loadtime.Aj;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.model.AjaxResult;
+import project.service.BaseService;
+import project.util.StringUtils;
+import service.order.OrderService;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+@Service
+public class OrderServiceImpl extends BaseService implements OrderService {
+
+    private Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
+
+    @Autowired
+    private dao.order.orderMapper dao;
+
+    @Autowired
+    private service.shop.impl.ShopServiceImpl shopService;
+
+    @Autowired
+    private service.deliveryOrder.impl.DeliveryOrderServiceImpl deliveryOrderService;
+
+    @Autowired
+    private service.user.impl.UserServiceImpl userService;
+
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+
+    /**
+     * 获取商家待接单的订单
+     *
+     * @return
+     */
+    public AjaxResult getWaitingOrders(Order order) {
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        List<Order> list = dao.findShopOrder(order);
+        if (list == null || list.size() == 0) {
+            return AjaxResult.build("0", "未查询出数据");
+        }
+        return AjaxResult.build("1", "查询成功", list);
+    }
+
+    /**
+     * 查询商家待送出订单
+     *
+     * @return
+     */
+    public AjaxResult getToBeSentOut() {
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        Order order = new Order();
+        order.setUserStatus(2);
+        order.setShopStatus(2);
+        List<Order> list = dao.getToBeSentOut(order);
+        return AjaxResult.build("1", "查询成功", list);
+
+    }
+
+    /**
+     * 查询商铺的全部订单
+     *
+     * @return
+     */
+    public AjaxResult findShopOrderAll() {
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        Order order = new Order();
+        order.setShop(shop);
+        order.setUserStatus(2);//用户已付款
+        List<Order> list = dao.findShopOrderAll(order);
+        if (list == null || list.size() == 0) {
+            return AjaxResult.build("0", "未查询到数据");
+        }
+        return AjaxResult.build("1", "已查询到数据", list);
+    }
+    /**
+     * 根据订单查询骑手信息
+     * @param order
+     * @return
+     */
+    public AjaxResult getDeliveryByOrder(Order order){
+        Map map=new HashMap();
+        map.put("order",order);
+        List<DeliveryOrder> list= (List) deliveryOrderService.select(map).getObj();
+        String id=list.get(0).getUser().getId();//获取骑手id
+        log.info("骑手id:"+id);
+        User user=(User)userService.selectOneById(id).getObj();
+        if(user==null){
+            return AjaxResult.build("0","未查询到骑手信息");
+        }
+        user.setName(StringUtils.unicode2String(user.getName()));
+        return AjaxResult.build("1","获取到骑手信息",user);
+    }
+
+    /**
+     * 商家确认接单
+     *
+     * @param order
+     * @return
+     */
+    public AjaxResult confirmReceipt(Order order){
+        order.setShopReceiptTime(new Date());//商家接单时间
+        order.setUserStatus(2);
+        order.setShopStatus(2);
+        order.setDeliveryStatus(1);
+        order.setStatus("已接单");
+        int i=dao.update(order);
+        if(i>0){
+            return AjaxResult.build("1","修改成功");
+        }
+        return AjaxResult.build("0","修改失败");
+    }
+
+    /**
+     * 骑手可接订单
+     * @return
+     */
+    public AjaxResult getAccessible(){
+        Order order=new Order();
+        order.setUserStatus(2);
+        order.setShopStatus(2);
+        order.setDeliveryStatus(1);
+       List<Order> list= dao.findShopOrder(order);
+       if(list.size()==0){
+           return AjaxResult.build("0","未查询到结果");
+       }
+       return AjaxResult.build("1","已查询到结果",list);
+    }
+
+    /**
+     * 商户每隔5秒查询是否有未接单的订单
+     * @return
+     */
+    public AjaxResult getOrderByStatus(){
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        Order order=new Order();
+        order.setUserStatus(2);
+        order.setShopStatus(1);
+        order.setShop(shop);
+        List<Order> list=dao.findShopOrder(order);
+        if(list.size()==0){
+            return AjaxResult.build("0","未查询到结果");
+        }
+        return AjaxResult.build("1","有新的订单",list);
+    }
+}

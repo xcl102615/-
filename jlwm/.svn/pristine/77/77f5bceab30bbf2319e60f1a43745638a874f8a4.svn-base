@@ -1,0 +1,164 @@
+package controller.order.impl;
+
+import model.order.Order;
+import model.user.User;
+import org.aspectj.weaver.ast.Or;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+/***
+ * 用户控制层接口
+ */
+@RequestMapping(value = "order")
+@RestController
+public class OrderController implements controller.order.OrderController {
+
+    private Logger log = LoggerFactory.getLogger(OrderController.class);
+
+    @Autowired
+    private service.order.impl.OrderServiceImpl bll;
+
+    /**
+     * 订单新增
+     *
+     * @param order
+     * @return
+     */
+    @PostMapping(value = "addOrder")
+    public AjaxResult addOrder(@RequestBody Order order) {
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入订单新增 addOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        order.setId(StringUtils.getOrderIdByTime(""));//创建id
+        order.setCreateDate(new Date());//创建时间
+        order.setUser(user);
+        return bll.save(order);
+    }
+
+    /**
+     * 订单查询
+     *
+     * @param order
+     * @return
+     */
+    @PostMapping(value = "findOrder")
+    public AjaxResult findOrder(@RequestBody Order order) {
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入订单查找 findOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        //设置查找条件
+        Map map = new HashMap();
+        map.put("id", order.getId());
+        map.put("user",user);
+        return bll.select(map);
+    }
+
+    /**
+     * 订单修改
+     *
+     * @param order
+     * @return
+     */
+    @PostMapping(value = "updateOrder")
+    public AjaxResult updateOrder(@RequestBody Order order) {
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+
+        log.info("进入订单修改 updateOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        order.setUser(user);
+        return bll.update(order);
+    }
+
+    /**
+     * 订单删除
+     *
+     * @param order
+     * @return
+     */
+    @PostMapping(value = "delOrder")
+    public AjaxResult delOrder(@RequestBody Order order) {
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入订单删除 delOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        order.setUser(user);
+        return bll.delete(order);
+    }
+
+    /**
+     * 查询商家订单
+     * @return
+     */
+    @PostMapping(value="findShopOrder")
+    public AjaxResult findShopOrder(@RequestBody Map map){
+        //不传参数查所有订单
+        int i= (int) map.get("status");
+        if(i==1){
+            //待接单
+            Order order=new Order();
+            order.setUserStatus(2);
+            order.setShopStatus(1);
+            return bll.getWaitingOrders(order);
+        }
+        if(i==2){
+            //待送出
+            return bll.getToBeSentOut();
+        }
+        return AjaxResult.build("0","参数错误");
+    }
+
+    /**
+     * 查询商铺的全部订单
+     * @return
+     */
+    @PostMapping(value = "findShopOrderAll")
+    public AjaxResult findShopOrderAll(){
+        return bll.findShopOrderAll();
+    }
+
+    /**
+     * 根据状态查询订单
+     * @param order userStatus shopStatus deliveryStatus
+     * @return
+     */
+    @PostMapping(value="findShopOrderByStatus")
+    public AjaxResult findShopOrderByStatus(Order order){
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("根据状态查询订单 findShopOrderByStatus");
+        return bll.getWaitingOrders(order);
+    }
+
+}

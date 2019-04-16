@@ -1,0 +1,114 @@
+package controller.food.impl;
+
+import controller.food.FoodTypeController;
+import model.food.Food;
+import model.foodType.FoodType;
+import model.shop.Shop;
+import model.type.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import project.util.StringUtils;
+import service.shop.impl.ShopServiceImpl;
+import service.type.impl.TypeServiceImpl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RequestMapping("foodType")
+@RestController
+public class FoodTypeControllerImpl implements FoodTypeController {
+    private Logger log= LoggerFactory.getLogger(FoodTypeControllerImpl.class);
+    @Autowired
+    private service.food.impl.FoodTypeServiceImpl bll;
+    @Autowired
+    private TypeServiceImpl typeService;
+    @Autowired
+    private ShopServiceImpl shopService;
+    /**
+     * 添加商品分类
+     * @param foodType
+     * @return
+     */
+    @PostMapping(value="/addFoodType")
+    public AjaxResult addFoodType(@RequestBody FoodType foodType){
+        if (StringUtils.objIsNull(foodType)) {
+            return AjaxResult.build("0","对象不能为空");
+        }
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        String foodTypeName=foodType.getName();
+        Map foodTypeNameMap=new HashMap();
+        foodTypeNameMap.put("shopId",shop.getId());
+        foodTypeNameMap.put("name",foodTypeName);
+        List<FoodType> foodTypeList =(List<FoodType>) bll.select(foodTypeNameMap).getObj();
+        if(foodTypeList.size()>0){
+            return AjaxResult.build("0","该分类名称已存在");
+        }
+        foodType.setShopId(shop.getId());
+        Map map=new HashMap();
+        map.put("name",foodType.getDescription()); //前端将平台分类的名称放入到了 description中
+        List<Type> typeList=(List<Type>) typeService.select(map).getObj();
+        for(Type type:typeList){
+            foodType.setTypeId(type.getId());
+            log.info("平台分类id"+type.getId());
+        }
+        log.info("进入商品分类新增方法 addProduct()");
+        foodType.setId(StringUtils.getUUID());
+        foodType.setCreateDate(new Date());
+
+        return bll.save(foodType);
+    }
+
+    /**
+     * 删除商品分类
+     * @param foodType（id 、shop.id）
+     * @return
+     */
+    @PostMapping("/deleteFoodType")
+    public AjaxResult deleteFoodType(@RequestBody FoodType foodType){
+        if (StringUtils.objIsNull(foodType)) {
+            return AjaxResult.build("0","对象不能为空");
+        }
+        log.info("进入商品分类删除方法 addProduct()");
+        return bll.delete(foodType);
+    }
+
+    /**
+     * 修改商品分类
+     * @param foodType
+     * @return
+     */
+    @PostMapping("/updateFoodType")
+    public AjaxResult updateFoodType(@RequestBody FoodType foodType){
+        if (StringUtils.objIsNull(foodType)) {
+            return AjaxResult.build("0","对象不能为空");
+        }
+        log.info("进入商品分类修改方法 updateFood()");
+        return bll.update(foodType);
+
+    }
+
+    /**
+     * 根据自定义条件查找商品分类
+     * @param map
+     * @return
+     */
+    @PostMapping("/findFoodType")
+    public AjaxResult findFoodType(@RequestBody Map<String, Object> map){
+        if(StringUtils.objIsNull(map)){
+            return AjaxResult.build("0","对象不能为空");
+        }
+        log.info("进入商品分类查找方法 updateFood()");
+        return bll.select(map);
+    }
+}

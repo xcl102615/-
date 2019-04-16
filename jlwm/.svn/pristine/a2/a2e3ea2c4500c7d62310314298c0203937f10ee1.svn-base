@@ -1,0 +1,24 @@
+package controller.admin;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import service.user.impl.UserServiceImpl;
+
+@RequestMapping(value = "admin/user")
+@Controller
+public class AdminController {
+    @Autowired
+    private UserServiceImpl userService;
+    @RequestMapping(value = "goUserManage")
+    public String goUserManage(){
+        return "user/UserManage";
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "selectAll")
+    public Object selectAllUser(){
+        return userService.selectAll();
+    }
+}

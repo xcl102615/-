@@ -1,0 +1,21 @@
+package controller.wyy;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import project.util.StringUtils;
+import service.wyy.SendMessageService;
+
+@RestController
+public class SendMessage {
+    @Autowired
+    private SendMessageService sendMessageService;
+    @PostMapping("sendMessage")
+    public AjaxResult sendMessage(String mobile) throws Exception {
+        if(StringUtils.objIsNull(mobile)){
+            return AjaxResult.build("0","手机号不能为空");
+        }
+        return sendMessageService.sendMessage(mobile);
+    }
+}

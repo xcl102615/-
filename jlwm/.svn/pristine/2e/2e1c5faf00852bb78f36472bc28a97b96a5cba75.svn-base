@@ -1,0 +1,17 @@
+package test;
+
+import project.util.LocationUtil;
+public class Test {
+
+        public static void main(String []args){
+            //System.out.println(LocationUtil.getDistance(113.950579,27.150503 ,113.961846,27.134073));
+          int i=2;
+          int j=3;
+          if(i>1){
+              if(j<2){
+                  System.out.println("1111");
+              }
+          }
+            System.out.println("2222");
+        }
+}

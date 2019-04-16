@@ -1,0 +1,16 @@
+package service.shop.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.service.BaseService;
+import service.shop.ShopProfitService;
+@Service
+public class ShopProfitSerciceImpl extends BaseService implements ShopProfitService {
+    @Autowired
+    private dao.shop.ShopProfit dao;
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+}

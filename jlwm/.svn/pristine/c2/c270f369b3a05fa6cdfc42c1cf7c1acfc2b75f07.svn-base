@@ -1,0 +1,248 @@
+package controller.wchatPay;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+import project.util.wx.HttpRequest;
+import project.util.wx.PayUtil;
+import project.util.wx.RealipUtil;
+import project.util.wx.WechatPayConstants;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+@RestController
+@RequestMapping("wchatPay")
+public class WchatPayController {
+
+
+    private static final Logger logger = LoggerFactory.getLogger(WchatPayController.class);
+    /**
+     * 统一下单接口
+     *
+     * @param
+     * @param request
+     * @return
+     */
+    @SuppressWarnings({ "unchecked" })
+    @RequestMapping(value = "/unifiedorder", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, String> unifiedorder(HttpServletRequest request, String out_trade_no, String total_fee, @RequestHeader("Cookie")String token) {
+
+        /*logger.info("unifiedorder() 方法中获得的token:" + token);
+
+        Map<String, Claim> claims = TokenUtil.verifyToken(token);
+
+        Claim wx_id_claim = claims.get(ContentsValue.WX_ID);
+        String openId = wx_id_claim.asString();*/
+        //logger.info("unifiedorder()........支付接口中从token中获取的opendId：" + openId);
+
+        // Map map = new HashMap();
+        SortedMap<String, String> params = new TreeMap<String, String>();
+
+        //String nonce_str = RandomStringGenerator.getRandomStringByLength(24);
+        String nonce_str=StringUtils.GetRandom(24);
+        //TODO openId从缓存中获取
+        Map map=(Map) ShiroUtil.getSession().getAttribute("wxInfo");
+        String openId=map.get("openId").toString();
+
+        try {
+            params.put("appid",WechatPayConstants.appID);
+            params.put("mch_id",WechatPayConstants.MCH_ID.trim());
+            params.put("nonce_str", nonce_str);
+            params.put("body", "计里科技");
+            params.put("out_trade_no", out_trade_no);
+            params.put("total_fee", total_fee);
+            params.put("spbill_create_ip", RealipUtil.getIpAddress(request));
+            params.put("trade_type", "JSAPI");
+            params.put("notify_url", "http://xcx.iooint.com/jl_xcx/payNotify.do");// 回调路径
+            params.put("openid", openId.toString());
+            params.put("sign_type", "MD5");
+            // 生成签名
+            String preStr = PayUtil.createLinkString(params);
+            logger.info(preStr);
+            String mySign = PayUtil.sign(preStr, WechatPayConstants.key, "utf-8").toUpperCase();
+            params.put("sign", mySign);
+            // String result = HttpRequest.sendPost(WechatPayConstants.PAY_PATH,
+            // PayUtil.GetMapToXML(params));
+            String result = PayUtil.httpRequest(WechatPayConstants.PAY_PATH, "POST", PayUtil.GetMapToXML(params));// 不需要验证证书的方法
+            System.out.println(result);
+
+            Map<String, String> notifyMap = PayUtil.doXMLParse(result);
+
+            // 二次签名
+            if ("SUCCESS".equals(notifyMap.get("return_code"))
+                    && notifyMap.get("return_code").equals(notifyMap.get("result_code"))) {
+
+                String prepay_id = notifyMap.get("prepay_id");// 返回的预付单信息
+                logger.info(prepay_id);
+                String timeStamp = String.valueOf(System.currentTimeMillis() / 1000);
+                // 拼接签名需要的参数
+                String stringSignTemp = "appId=" + WechatPayConstants.appID + "&nonceStr=" + nonce_str
+                        + "&package=prepay_id=" + prepay_id + "&signType=MD5&timeStamp=" + timeStamp;
+
+                // 签名算法生成签名
+                String paySign = PayUtil.sign(stringSignTemp, WechatPayConstants.key, "utf-8").toUpperCase();
+
+                SortedMap<String, String> payInfo = new TreeMap<String, String>();
+
+                payInfo.put("appId", WechatPayConstants.appID);
+                payInfo.put("nonceStr", nonce_str);
+                payInfo.put("package", "prepay_id=" + prepay_id);
+                payInfo.put("signType", "MD5");
+                payInfo.put("timeStamp", timeStamp);
+                payInfo.put("paySign", paySign);
+
+                return payInfo;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * 微信小程序支付成功后回调函数信息
+     *
+     * @param request
+     * @param response
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @RequestMapping(value = "/payNotify")
+    public void payNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        // 获取输入流
+        InputStream in = request.getInputStream();
+        InputStreamReader is = new InputStreamReader(in);
+        BufferedReader br = new BufferedReader(is);
+        StringBuffer sb = new StringBuffer();
+        String line = null;
+        if ((line = br.readLine()) != null) {
+            sb.append(line);
+        }
+        br.close();
+        // sb为微信返回的xml
+        String notifyXml = sb.toString();
+        String resXml = null;
+        System.out.println("接收到的报文信息" + notifyXml);
+
+        Map map = PayUtil.doXMLParse(notifyXml);
+        String return_code = (String) map.get("return_code");
+
+        if ("SUCCESS".equals(return_code)) {
+            // 验证签名是否正确
+            Map<String, String> validParams = PayUtil.paraFilter(map);// 回调验签时需要去除sign和空值参数
+            String validStr = PayUtil.createLinkString(validParams);// 把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
+            String sign = PayUtil.sign(validStr, WechatPayConstants.key, "UTF-8").toUpperCase();// 拼装生成服务器端验证的签名
+
+            // 此处不仅对回调的参数进行验签，还需要对返回的金额与系统订单的金额进行比对等
+            if (sign.equals(map.get("sign"))) {
+
+                logger.info("支付成功");
+
+                /* 具体业务逻辑代码 start */
+
+                /* 业务逻辑end */
+
+                // 通知微信服务器已经支付成功
+                resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
+                        + "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
+
+            } else {
+
+                logger.info("微信支付回调失败!签名不一致");
+            }
+
+        } else {
+
+            logger.info("支付失败，错误信息为：" + map.get("err_code"));
+
+            resXml = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>"
+
+                    + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml>";
+        }
+
+        logger.info(resXml);
+        logger.info("微信支付回调数据结束");
+        // 获取输出流
+        OutputStream os = response.getOutputStream();
+        BufferedOutputStream out = new BufferedOutputStream(os);
+        out.write(resXml.getBytes());
+        out.flush();
+        out.close();
+
+    }
+
+    /**
+     * 退款
+     *
+     * @param orderId
+     *            商户订单号
+     * @param refundId
+     *            商户退款单号
+     * @param totalFee
+     *            订单金额
+     * @param refundFee
+     *            退款金额
+     * @param refundAccount
+     *            退款资金来源（默认传 "REFUND_SOURCE_UNSETTLED_FUNDS"）
+     * @return
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @RequestMapping(value = "/refundOrder")
+    @ResponseBody
+    public Map refundOrder(String orderId, String refundId, int totalFee, int refundFee, String refundAccount) {
+
+        Map map = new HashMap();
+        try {
+            SortedMap<String, String> params = new TreeMap<String, String>();
+
+            // 签名算法
+            params.put("appid", WechatPayConstants.appID);
+            params.put("mch_id", WechatPayConstants.MCH_ID);
+            //RandomStringGenerator.getRandomStringByLength(24)
+            params.put("nonce_str",StringUtils.GetRandom(24) );
+            // 商家订单号和退款单号二选一
+            params.put("out_trade_no", orderId);// 商家訂單號
+            params.put("out_refund_no", refundId);// 商户退款单号
+            params.put("sign_type", "MD5");
+            params.put("total_fee", String.valueOf(totalFee));// 订单总金额
+            params.put("refund_fee", String.valueOf(refundFee));// 退款的金额
+
+            String preStr = PayUtil.createLinkString(params); // 把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
+            String mySign = PayUtil.sign(preStr, WechatPayConstants.key, "utf-8").toUpperCase();
+            params.put("sign", mySign);
+            String xmlStr = HttpRequest.sendPost(WechatPayConstants.REFUND_PATH, PayUtil.GetMapToXML(params));
+            System.out.println(xmlStr);
+            Map notifyMap = PayUtil.doXMLParse(xmlStr);
+            if ("SUCCESS".equals(notifyMap.get("return_code"))) {
+                if ("SUCCESS".equals(notifyMap.get("result_code"))) {
+
+                    // 退款申请成功
+                    System.out.println("退款成功");
+                    // 业务逻辑操作
+
+                    map.put("code", WechatPayConstants.CODE_SUCCESS);
+                    map.put("msg", WechatPayConstants.REFUND_SUCCESS);
+                    map.put("data", "");
+                    return map;
+                }
+            }
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+}

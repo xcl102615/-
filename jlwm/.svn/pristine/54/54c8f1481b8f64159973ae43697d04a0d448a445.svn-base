@@ -1,0 +1,80 @@
+package model.comment;
+
+import model.shop.Shop;
+import model.user.User;
+import project.model.BaseObject;
+import java.util.List;
+
+public class Comment extends BaseObject {
+    private User user;
+    //评论者
+    private Shop shop;
+    //被评论的店铺（商家）
+    private String content;
+    //评论的内容
+    private String img;
+    //评论的图片
+    private int shopScore;
+    //商家星级评分
+    private int riderScore;
+    //骑手星级评分
+    private List<CommentReply> commentReplyList;
+    //回复信息
+
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Shop getShop() {
+        return shop;
+    }
+
+    public void setShop(Shop shop) {
+        this.shop = shop;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
+    }
+
+    public int getShopScore() {
+        return shopScore;
+    }
+
+    public void setShopScore(int shopScore) {
+        this.shopScore = shopScore;
+    }
+
+    public int getRiderScore() {
+        return riderScore;
+    }
+
+    public void setRiderScore(int riderScore) {
+        this.riderScore = riderScore;
+    }
+
+    public List<CommentReply> getCommentReplyList() {
+        return commentReplyList;
+    }
+
+    public void setCommentReplyList(List<CommentReply> commentReplyList) {
+        this.commentReplyList = commentReplyList;
+    }
+}

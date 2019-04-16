@@ -1,0 +1,103 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: iooint
+  Date: 2019/3/5
+  Time: 10:22
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="header/init.jsp" %>
+<html>
+<head>
+    <title>首页</title>
+    <script src="<%=basePath%>/script/common/qrcode.min.js"></script>
+    <script src=" http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+
+</head>
+<body>
+<h1 style="color: #1E9FFF;text-align: center">计里外卖平台管理首页</h1>
+<div id="qrcode"></div>
+<button id="btn">获取登录二维码</button>
+<button id="login">手机端登录</button>
+<button id="sao">扫一扫</button>
+<form action="<%=basePath%>/upload" enctype="multipart/form-data" method="post">
+    上传文件2：<input type="file" name="files" multiple><br/>
+    <input type="submit" value="提交">
+</form>
+
+
+</body>
+<script>
+    var key = "";
+    var t1;
+    $(function () {
+        $("#btn").click(function () {
+            Post("printer/getKey", {}, function (data) {
+                if (data.code <= 0) {
+                    alert("获取二维码失败！");
+                } else {
+                    key = data.obj;
+                    // 设置参数方式
+                    var qrcode = new QRCode('qrcode', {
+                        text: 'http://192.168.31.120:8080/jllwm/printer/getUser?key=' + data.obj,
+                        width: 256,
+                        height: 256,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
+
+                    });
+                    t1 = window.setInterval(getIsLogin, 1000);
+                }
+
+            })
+        });
+
+        $("#login").click(function () {
+            Post("user/login", {"phone": "15932886471", "password": "123"}, function (data) {
+                if (data.code > 0) {
+                    alert("登录成功");
+                } else {
+                    alert("登录失败");
+                }
+            })
+        })
+
+        $("#sao").click(function () {
+
+        })
+    })
+
+    //查询是否登录成功
+    function getIsLogin() {
+        return Post("printer/isLogin", {"key": key}, function (data) {
+            if(data.code>0){
+                window.clearInterval(t1);
+                console.log(data.obj);
+                alert(data.obj.name+"上午好!欢迎您登录");
+                location.reload();
+
+
+
+
+
+
+
+            }
+        })
+    }
+
+    function Post(url, data, callback) {
+        $.ajax({
+                url: "<%=basePath%>/" + url,
+                type: "POST",
+                contentType: 'application/json;charset=utf-8',
+                data: JSON.stringify(data),
+                success: function (obj) {
+                    callback(obj);
+                }
+            }
+        )
+    }
+</script>
+</html>

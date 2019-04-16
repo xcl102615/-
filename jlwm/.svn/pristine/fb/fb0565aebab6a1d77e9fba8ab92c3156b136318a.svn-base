@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.printer.PrinterMapper">
+
+    <resultMap id="BaseResultMap" type="model.printer.Printer">
+        <result column="id" property="id"/>
+        <result column="shopId" property="shopId"/>
+        <result column="createDate" property="createDate"/>
+
+        <result column="autoPrint" property="autoPrint"/>
+        <result column="updateTime" property="updateTime"/>
+
+        <result column="sn" property="sn"/>
+        <result column="ukey" property="ukey"/>
+        <result column="phone" property="phone"/>
+        <result column="remarks" property="remarks"/>
+        <result column="times" property="times"/>
+    </resultMap>
+
+    <!--扩展 resultMap-->
+    <resultMap id="resultMap" type="model.printer.Printer" extends="BaseResultMap">
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+--         id,shopId,createDate,status,remarks,password
+      *
+    </sql>
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="shopId != null">
+                shopId,
+            </if>
+            <if test="sn != null">
+                sn,
+            </if>
+            <if test="ukey != null">
+                ukey,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+
+            <if test="remarks != null">
+                remarks,
+            </if>
+
+            <if test="times != null">
+                times,
+            </if>
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="updateTime != null">
+                updateTime,
+            </if>
+            <if test="autoPrint != null">
+                autoPrint,
+            </if>
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="shopId != null">
+                #{shopId},
+            </if>
+            <if test="sn != null">
+                #{sn},
+            </if>
+            <if test="ukey != null">
+                #{ukey},
+            </if>
+            <if test="phone != null">
+                #{phone},
+            </if>
+
+            <if test="remarks != null">
+                #{remarks},
+            </if>
+            <if test="times != null">
+                #{times},
+            </if>
+
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="autoPrint != null">
+                #{autoPrint},
+            </if>
+        </trim>
+    </sql>
+    <sql id="columnsItemsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="item.id != null">
+                #{item.id},
+            </if>
+            <if test="item.shopId != null">
+                #{item.shopId},
+            </if>
+            <if test="item.sn != null">
+                #{item.sn},
+            </if>
+            <if test="item.ukey != null">
+                #{item.ukey},
+            </if>
+            <if test="item.phone != null">
+                #{item.phone},
+            </if>
+
+            <if test="item.remarks != null">
+                #{item.remarks},
+            </if>
+            <if test="item.times != null">
+                #{item.times},
+            </if>
+
+            <if test="item.createTime != null">
+                #{item.createTime},
+            </if>
+            <if test="item.updateTime != null">
+                #{item.updateTime},
+            </if>
+            <if test="item.autoPrint != null">
+                #{item.autoPrint},
+            </if>
+        </trim>
+    </sql>
+    <!--涉及条件的统一配置，特殊需求在方法上改动-->
+    <sql id="condition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+
+                <!--
+                    根据name模糊查询
+                -->
+            </trim>
+        </where>
+    </sql>
+    <!--更新操作 统一配置-->
+    <sql id="forUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="shopId!=null">
+                `shopId`=#{shopId},
+            </if>
+            <if test="sn!=null">
+                `sn`=#{sn},
+            </if>
+            <if test="remarks!=null">
+                `remarks`=#{remarks},
+            </if>
+            <if test="createTime!=null">
+                `createTime`=#{createTime},
+            </if>
+            <if test="ukey!=null">
+                `ukey`=#{ukey},
+            </if>
+            <if test="phone!=null">
+                `phone`=#{phone},
+            </if>
+            <if test="times!=null">
+                `times`=#{times},
+            </if>
+            <if test="updateTime!=null">
+                `updateTime`=#{updateTime},
+            </if>
+            <if test="autoPrint!=null">
+                `autoPrint`=#{autoPrint},
+            </if>
+        </trim>
+    </sql>
+    <!--组件需要以下方法-->
+    <insert id="save" parameterType="model.printer.Printer">
+        insert into t_print (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+    </insert>
+
+    <delete id="delete" parameterType="model.printer.Printer">
+        delete from t_print<include refid="condition"/>;
+    </delete>
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from t_print
+        <where>
+            id in
+            <foreach collection="list" item="item" separator="," open="(" close=")">#{item,jdbcType=VARCHAR}</foreach>
+        </where>
+    </delete>
+
+    <update id="update" parameterType="model.printer.Printer">
+        UPDATE t_print
+        <include refid="forUpdate"/>
+        WHERE (`id`=#{id});
+    </update>
+
+    <select id="select" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select * from t_print<include refid="condition"/>;
+    </select>
+    <select id="selectOne" parameterType="model.printer.Printer" resultMap="BaseResultMap">
+        select * from t_print<include refid="condition"/>;
+    </select>
+    <select id="fastFind" parameterType="java.util.Map" resultType="java.util.Map">
+        select id,shopId from t_print <include refid="condition"/>;
+    </select>
+    <select id="selectOneById" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from t_print where id=#{id};
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select * from t_print ;
+    </select>
+    <select id="findByPage" parameterType="java.util.Map" resultType="java.util.Map">
+        select * from t_print
+        <include refid="condition"/>
+        limit #{start},#{end};
+    </select>
+    <select id="countTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select Count(id) from t_print <include refid="condition"/>;
+    </select>
+    <select id="selectTopX" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select * from t_print <include refid="condition"/> order by (#{orderBy}) desc limit 0,#{topX};
+    </select>
+    <select id="randomSelectTopX" parameterType="java.util.Map" resultMap="BaseResultMap">
+      SELECT * FROM (
+        SELECT * ,ROUND(RAND()) AS newno FROM t_print GROUP BY id
+      )AS t <include refid="condition"/> ORDER BY t.newno asc LIMIT #{topX}
+    </select>
+    <!--功能扩展-->
+</mapper>

@@ -1,0 +1,20 @@
+package service.printer;
+
+import dao.printer.PrinterMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.service.BaseService;
+
+@Service
+public class PrinterService extends BaseService {
+
+    @Autowired
+    private PrinterMapper dao;
+
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+
+}

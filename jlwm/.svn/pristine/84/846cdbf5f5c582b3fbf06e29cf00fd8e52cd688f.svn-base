@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.shop.ShopMapper">
+
+    <resultMap id="BaseResultMap" type="model.shop.Shop">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="createDate" property="createDate"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+
+    </resultMap>
+
+    <!--扩展 resultMap-->
+    <resultMap id="resultMap" type="model.shop.Shop" extends="BaseResultMap">
+        <result column="logo" property="logo"/>
+        <result column="minFree" property="minFree"/>
+        <result column="distribution_type" property="distribution_type"/>
+        <result column="businessHours" property="businessHours"/>
+        <result column="phone" property="phone"/>
+        <result column="location" property="location"/>
+        <result column="latitude" property="latitude"/>
+        <result column="longitude" property="longitude"/>
+        <result column="text" property="text"/>
+        <result column="isOpen" property="isOpen"/>
+        <result column="money" property="money"/>
+        <result column="commonDeliveryPrice" property="commonDeliveryPrice"/>
+        <result column="specialDeliveryPrice" property="specialDeliveryPrice"/>
+        <result column="specialTime" property="specialTime"/>
+        <result column="canUse" property="canUse"/>
+        <result column="legalPerson" property="legalPerson"/>
+        <result column="bankId" property="bankId"/>
+        <result column="openingBank" property="openingBank"/>
+        <result column="businessLicense" property="businessLicense"/>
+        <result column="list" property="list"/>
+        <!--1对1-->
+        <association property="user" javaType="model.user.User">
+            <id column="user" property="id"/>
+            <result column="userName" property="name"/>
+        </association>
+        <!--1对多-->
+        <!--<collection property="roles" column="id"-->
+        <!--javaType="ArrayList" ofType="java.lang.Object"-->
+        <!--select="dao.impl.RoleMapper.selectRoles">-->
+        <!--</collection>-->
+    </resultMap>
+    <sql id="Base_Column_List">
+--         id,name,createDate,status,description,password
+      *
+    </sql>
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="createDate != null">
+                createDate,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+
+            <if test="logo != null">
+                logo,
+            </if>
+            <if test="minFree != null">
+                minFree,
+            </if>
+            <if test="distribution_type != null">
+                distribution_type,
+            </if>
+            <if test="businessHours != null">
+                businessHours,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="location != null">
+                location,
+            </if>
+            <if test="latitude != null">
+                latitude,
+            </if>
+            <if test="longitude != null">
+                longitude,
+            </if>
+            <if test="text != null">
+                text,
+            </if>
+            <if test="isOpen != null">
+                isOpen,
+            </if>
+            <if test="money != null">
+                money,
+            </if>
+            <if test="user != null">
+                user,
+            </if>
+            <if test="commonDeliveryPrice != null">
+                commonDeliveryPrice,
+            </if>
+            <if test="specialDeliveryPrice != null">
+                specialDeliveryPrice,
+            </if>
+            <if test="specialTime != null">
+                specialTime,
+            </if>
+            <if test="legalPerson != null">
+                legalPerson,
+            </if>
+            <if test="bankId != null">
+                bankId,
+            </if>
+            <if test="openingBank != null">
+                openingBank,
+            </if>
+            <if test="businessLicense != null">
+                businessLicense,
+            </if>
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="createDate != null">
+                #{createDate},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+
+            <if test="logo != null">
+                #{logo},
+            </if>
+            <if test="minFree != null">
+                #{minFree},
+            </if>
+            <if test="distribution_type != null">
+                #{distribution_type},
+            </if>
+            <if test="businessHours != null">
+                #{businessHours},
+            </if>
+            <if test="phone != null">
+                #{phone},
+            </if>
+            <if test="location != null">
+                #{location},
+            </if>
+            <if test="latitude != null">
+                #{latitude},
+            </if>
+            <if test="longitude != null">
+                #{longitude},
+            </if>
+            <if test="text != null">
+                #{text},
+            </if>
+            <if test="isOpen != null">
+                #{isOpen},
+            </if>
+            <if test="money != null">
+                #{money},
+            </if>
+            <if test="user != null">
+                #{user.id},
+            </if>
+            <if test="commonDeliveryPrice != null">
+                #{commonDeliveryPrice},
+            </if>
+            <if test="specialDeliveryPrice != null">
+                #{specialDeliveryPrice},
+            </if>
+            <if test="specialTime != null">
+                #{specialTime},
+            </if>
+            <if test="legalPerson != null">
+                #{legalPerson},
+            </if>
+            <if test="bankId != null">
+                #{bankId},
+            </if>
+            <if test="openingBank != null">
+                #{openingBank},
+            </if>
+            <if test="businessLicense != null">
+                #{businessLicense},
+            </if>
+        </trim>
+    </sql>
+    <sql id="columnsItemsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="item.id != null">
+                #{item.id},
+            </if>
+            <if test="item.name != null">
+                #{item.name},
+            </if>
+            <if test="item.createDate != null">
+                #{item.createDate},
+            </if>
+            <if test="item.status != null">
+                #{item.status},
+            </if>
+            <if test="item.description != null">
+                #{item.description},
+            </if>
+            <if test="item.password != null">
+                #{item.password},
+            </if>
+        </trim>
+    </sql>
+    <!--涉及条件的统一配置，特殊需求在方法上改动-->
+    <sql id="condition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+                <!--
+                    根据name模糊查询
+                -->
+                <if test="name!=null">
+                    name like '%${name}%' and
+                </if>
+                <if test="user!=null">
+                    user = #{user.id} and
+                </if>
+                <if test="status!=null">
+                    status = #{status} and
+                </if>
+                <if test="phone!=null">
+                    phone = #{phone} and
+                </if>
+               <!--
+                如果不传是否可用的状态 默认就是查询可以使用的店铺
+               -->
+                <if test="canUse!=null">
+                    canUse=#{canUse} and
+                </if>
+            </trim>
+        </where>
+    </sql>
+    <!--更新操作 统一配置-->
+    <sql id="forUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="name!=null">
+                `name`=#{name},
+            </if>
+            <if test="status!=null">
+                `status`=#{status},
+            </if>
+            <if test="description!=null">
+                `description`=#{description},
+            </if>
+            <if test="createDate!=null">
+                `createDate`=#{createDate},
+            </if>
+
+            <if test="logo!=null">
+                logo = #{logo},
+            </if>
+            <if test="minFree!=null">
+                minFree = #{minFree} ,
+            </if>
+            <if test="distribution_type!=null">
+                distribution_type = #{distribution_type} ,
+            </if>
+            <if test="businessHours!=null">
+                businessHours = #{businessHours} ,
+            </if>
+            <if test="phone!=null">
+                phone = #{phone},
+            </if>
+            <if test="location!=null">
+                location = #{location},
+            </if>
+            <if test="latitude!=null">
+                latitude = #{latitude},
+            </if>
+            <if test="longitude!=null">
+                longitude = #{longitude} ,
+            </if>
+            <if test="text!=null">
+                text = #{text},
+            </if>
+            <if test="isOpen!=null">
+                isOpen = #{isOpen},
+            </if>
+            <if test="money!=null">
+                money = #{money},
+            </if>
+            <if test="commonDeliveryPrice!=null">
+                commonDeliveryPrice = #{commonDeliveryPrice},
+            </if>
+            <if test="specialDeliveryPrice!=null">
+                specialDeliveryPrice = #{specialDeliveryPrice},
+            </if>
+            <if test="specialTime!=null">
+                specialTime = #{specialTime},
+            </if>
+            <if test="legalPerson!=null">
+                legalPerson = #{legalPerson},
+            </if>
+            <if test="bankId!=null">
+                bankId = #{bankId},
+            </if>
+            <if test="openingBank!=null">
+                openingBank = #{openingBank},
+            </if>
+            <if test="businessLicense!=null">
+                businessLicense = #{businessLicense},
+            </if>
+        </trim>
+    </sql>
+    <!--组件需要以下方法-->
+    <insert id="save" parameterType="model.shop.Shop">
+        insert into t_shop (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+    </insert>
+
+    <delete id="delete" parameterType="model.shop.Shop">
+        update t_shop set canUse=false where id=#{id}
+    </delete>
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from t_shop
+        <where>
+            id in
+            <foreach collection="list" item="item" separator="," open="(" close=")">#{item,jdbcType=VARCHAR}</foreach>
+            and `user`=#{user.id};
+        </where>
+    </delete>
+
+    <update id="update" parameterType="model.shop.Shop">
+        UPDATE t_shop
+        <include refid="forUpdate"/>
+        WHERE (`id`=#{id} and `user`=#{user.id});
+    </update>
+
+    <select id="select" parameterType="java.util.Map" resultMap="resultMap">
+        select * from v_shop<include refid="condition"/>;
+    </select>
+    <select id="selectOne" parameterType="model.shop.Shop" resultMap="resultMap">
+        select * from v_shop<include refid="condition"/>;
+    </select>
+    <select id="fastFind" parameterType="java.util.Map" resultType="java.util.Map">
+        select id,name from v_shop <include refid="condition"/>;
+    </select>
+    <select id="selectOneById" parameterType="java.lang.String" resultMap="resultMap">
+        select * from v_shop where id=#{id};
+    </select>
+    <select id="selectAll" resultMap="resultMap">
+        select * from v_shop;
+    </select>
+    <select id="findByPage" parameterType="java.util.Map" resultType="java.util.Map">
+        select * from v_shop
+        <include refid="condition"/>
+        limit #{start},#{end};
+    </select>
+    <select id="countTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select Count(id) from v_shop <include refid="condition"/>;
+    </select>
+    <select id="selectTopX" parameterType="java.util.Map" resultMap="resultMap">
+        select * from v_shop <include refid="condition"/> order by (#{orderBy}) desc limit 0,#{topX};
+    </select>
+    <select id="randomSelectTopX" parameterType="java.util.Map" resultMap="resultMap">
+        SELECT * FROM (
+        SELECT * ,ROUND(RAND()) AS newno FROM v_shop GROUP BY id
+        )AS t <include refid="condition"/> ORDER BY t.newno asc LIMIT #{topX}
+    </select>
+    <!--功能扩展-->
+    <select id="findShopByType" parameterType="java.lang.String" resultMap="resultMap">
+        select *from v_shop where id in (select distinct shop from t_food where type=#{type}) and canUse=true
+    </select>
+
+    <!-- int shopSwitch(Shop shop);//启用与禁用商铺-->
+    <update id="shopSwitch" parameterType="model.shop.Shop">
+        update t_shop set canUse=#{canUse} where id=#{id};
+    </update>
+
+
+    <update id="updateShop" parameterType="java.lang.Boolean">
+            UPDATE t_shop
+              set isOpen=#{isOpen}
+    </update>
+
+</mapper>

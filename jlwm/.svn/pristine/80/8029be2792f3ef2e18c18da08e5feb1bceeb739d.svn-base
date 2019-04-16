@@ -1,0 +1,112 @@
+package service.deliveryOrder.impl;
+
+import model.deliveryOrder.DeliveryMoney;
+import model.deliveryOrder.DeliveryOrder;
+import model.order.Order;
+import model.user.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.model.AjaxResult;
+import project.service.BaseService;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+import service.deliveryOrder.DeliveryOrderService;
+
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+@Service
+public class DeliveryOrderServiceImpl extends BaseService implements DeliveryOrderService {
+    @Autowired
+    private dao.deliveryOrder.DeliveryOrderMapper dao;
+
+    @Autowired
+    private service.order.impl.OrderServiceImpl orderService;
+
+    @Autowired
+    private service.deliveryOrder.impl.DeliveryMoneyServiceImpl deliveryMoneyService;
+
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+
+    @Override
+    public AjaxResult save(Object object) {
+        //新增骑手订单
+        int i=dao.save(object);
+        if(i<=0){
+            return AjaxResult.build("0","骑手订单新增失败");
+        }
+        //更改订单状态
+        Order order=new Order();
+        order.setDeliveryReceiptTime(new Date());//骑手接单时间
+        order.setDeliveryStatus(2);
+        order.setStatus("已接单");
+        order.setDescription("骑手已接单");
+        order.setId(((DeliveryOrder)object).getId());
+        i=(int)orderService.update(order).getObj();
+        if(i<=0){
+            return AjaxResult.build("0","更改订单状态失败");
+        }
+        return AjaxResult.build("1","接单成功");
+    }
+
+    @Override
+    public AjaxResult update(Object object) {
+        int i=dao.update(object);
+        if (i<=0){
+            return AjaxResult.build("0","修改骑手订单失败");
+        }
+        //更改订单状态
+        Order order=new Order();
+        order.setServiceTime(new Date());//骑手送达时间
+        order.setDeliveryStatus(5);
+        order.setStatus("已完成");
+        order.setDescription("骑手已送达");
+        order.setId(((DeliveryOrder)object).getOrder().getId());
+        i=(int)orderService.update(order).getObj();
+        if(i<=0){
+            return AjaxResult.build("0","更改订单状态失败");
+        }
+        //新增骑手流水
+        DeliveryMoney deliveryMoney=new DeliveryMoney();
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        deliveryMoney.setUser(user);
+        deliveryMoney.setName(user.getName());
+        deliveryMoney.setId(StringUtils.getUUID());
+        deliveryMoney.setCreateDate(new Date());
+        deliveryMoney.setOrder(order);
+        deliveryMoney.setStatus("已完成");
+        deliveryMoney.setDescription("骑手获取收益");
+        deliveryMoney.setType("收入");
+        i= (int) deliveryMoneyService.save(deliveryMoney).getObj();
+        if(i<=0){
+            return AjaxResult.build("0","新增骑手流水失败");
+        }
+        return AjaxResult.build("1","更新订单成功");
+    }
+
+    /**
+     * 查询配送中的订单
+     * @return
+     */
+    public AjaxResult findDistribution(User user) {
+        Map map=new HashMap();
+        map.put("user",user);
+        map.put("status","配送中");
+        List list=dao.select(map);
+        if(list.size()==0){
+            return AjaxResult.build("0","未查询到结果");
+        }
+        return AjaxResult.build("1","已查询到结果",list);
+    }
+}

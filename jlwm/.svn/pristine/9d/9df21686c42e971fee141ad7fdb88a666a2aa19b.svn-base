@@ -1,0 +1,53 @@
+package test;
+
+import org.apache.tools.ant.taskdefs.email.EmailTask;
+
+import java.io.IOException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Test {
+    public static void main(String []args) throws ExecutionException, InterruptedException, ClassNotFoundException, IOException {
+
+//        ExecutorService executorService= Executors.newFixedThreadPool(3);
+//        System.out.println(  Runtime.getRuntime().totalMemory());
+//        System.out.println(Runtime.getRuntime().availableProcessors());
+//        SecurityManager securityManager=System.getSecurityManager();
+//        securityManager.checkListen(8080);
+//        System.out.println();
+//        System.out.println(executorService.submit(new Callable<Object>() {
+//            public Object call(){
+//               for (int i=0;i<10;i++){
+//                   try {
+//                       System.out.println(i);
+//                       Thread.sleep(1000);
+//                   } catch (InterruptedException e) {
+//                       e.printStackTrace();
+//                   }
+//               }
+//                return "a";
+//            }
+//        }).get());
+//       Process process= Runtime.getRuntime().exec("cmd");
+//       byte []bytes=new byte[255];
+//       process.getInputStream().read(bytes);
+
+//        for (Object obj:bytes
+//             ) {
+//            System.out.println(obj);
+//        }
+//        String str= new String(bytes);
+//        System.out.println(str);
+//        process.waitFor();
+//        process.notify();
+//        process.getOutputStream().write(0);
+//        bytes=new byte[255];
+//        process.getInputStream().read(bytes);
+//        String str1= new String(bytes);
+//        System.out.println(str1);
+//        ExecutorService pool=Executors.newCachedThreadPool();
+
+    }
+}

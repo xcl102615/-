@@ -1,0 +1,49 @@
+package service.admin;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.model.AjaxResult;
+import service.carousel.impl.CarouselServiceImpl;
+import service.food.impl.FoodServiceImpl;
+import service.order.impl.OrderServiceImpl;
+import service.shop.impl.ShopServiceImpl;
+import service.type.impl.TypeServiceImpl;
+import service.user.impl.UserServiceImpl;
+
+@Service
+public class AdminService {
+    @Autowired
+    private UserServiceImpl userService;
+    @Autowired
+    private ShopServiceImpl shopService;
+    @Autowired
+    private OrderServiceImpl orderService;
+    @Autowired
+    private FoodServiceImpl foodService;
+    @Autowired
+    private TypeServiceImpl typeService;
+    @Autowired
+    private CarouselServiceImpl carouselService;
+
+    public AjaxResult getAllShopUser(){
+        return null;
+    }
+    public AjaxResult getAllDelivery(){
+        return null;
+    }
+    public AjaxResult getAllOrders(){
+        return orderService.selectAll();
+    }
+    public AjaxResult getOrdersByStatus(){
+        return null;
+    }
+    public AjaxResult getAllFood(){
+        return foodService.selectAll();
+    }
+    public AjaxResult getAllType(){
+        return typeService.selectAll();
+    }
+    public AjaxResult getAllCarousel(){
+        return carouselService.selectAll();
+    }
+}

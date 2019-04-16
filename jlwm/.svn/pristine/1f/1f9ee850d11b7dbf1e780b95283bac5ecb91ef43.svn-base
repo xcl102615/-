@@ -1,0 +1,267 @@
+package controller.order.impl;
+
+import model.order.Order;
+import model.order.OrderDetails;
+import model.shop.Shop;
+import model.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+/***
+ * 用户控制层接口
+ */
+@RequestMapping(value = "order")
+@RestController
+public class OrderController implements controller.order.OrderController {
+
+    private Logger log = LoggerFactory.getLogger(OrderController.class);
+
+    @Autowired
+    private service.order.impl.OrderServiceImpl bll;
+
+    /**
+     * 订单新增
+     *
+     * @param order
+     * @return
+     */
+    @PostMapping(value = "addOrder")
+    public AjaxResult addOrder(@RequestBody Order order) {
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入订单新增 addOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        order.setId(StringUtils.getOrderIdByTime(""));//创建id
+        order.setCreateDate(new Date());//创建时间
+        order.setUser(user);
+        order.setName(order.getShop().getName());
+        order.setStatus("未支付");
+        order.setDescription("用户已下单");
+        order.setUserStatus(1);
+        order.setShopStatus(1);
+        order.setDeliveryStatus(1);
+        //计算订单价格
+        double totalPrice=0.0d;
+        for (OrderDetails orderDetails:order.getOrderDetails()
+             ) {
+                orderDetails.setPrice(orderDetails.getUnitPrice()*orderDetails.getNum());
+                totalPrice+=orderDetails.getPrice();
+        }
+        order.setTotalPrice(totalPrice);
+        int i= Integer.parseInt(bll.save(order).getCode());
+        if(i<=0){
+            return AjaxResult.build("0","创建订单失败");
+        }
+        return AjaxResult.build("1","创建订单成功",order);
+    }
+
+    /**
+     * 订单查询
+     *
+     * @param order
+     * @return
+     */
+    @PostMapping(value = "findOrder")
+    public AjaxResult findOrder(@RequestBody Order order) {
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入订单查找 findOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        //设置查找条件
+        Map map = new HashMap();
+        map.put("id", order.getId());
+        map.put("user",user);
+        return bll.select(map);
+    }
+
+    /**
+     * 订单修改
+     *
+     * @param order
+     * @return
+     */
+    @PostMapping(value = "updateOrder")
+    public AjaxResult updateOrder(@RequestBody Order order) {
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+
+        log.info("进入订单修改 updateOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        order.setUser(user);
+        return bll.update(order);
+    }
+
+    /**
+     * 订单删除
+     *
+     * @param order
+     * @return
+     */
+    @PostMapping(value = "delOrder")
+    public AjaxResult delOrder(@RequestBody Order order) {
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入订单删除 delOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        order.setUser(user);
+        return bll.delete(order);
+    }
+
+    /**
+     * 查询商家订单
+     * @return
+     */
+    @PostMapping(value="findShopOrder")
+    public AjaxResult findShopOrder(@RequestBody Map map){
+        //不传参数查所有订单
+        int i= (int) map.get("status");
+        if(i==1){
+            //待接单
+            Order order=new Order();
+            order.setUserStatus(2);
+            order.setShopStatus(1);
+            return bll.getWaitingOrders(order);
+        }
+        if(i==2){
+            //待送出
+            return bll.getToBeSentOut();
+        }
+        return AjaxResult.build("0","参数错误");
+    }
+
+    /**
+     * 查询商铺的全部订单
+     * @return
+     */
+    @PostMapping(value = "findShopOrderAll")
+    public AjaxResult findShopOrderAll(){
+        return bll.findShopOrderAll();
+    }
+
+    /**
+     * 根据状态查询订单
+     * @param order userStatus shopStatus deliveryStatus
+     * @return
+     */
+    @PostMapping(value="findShopOrderByStatus")
+    public AjaxResult findShopOrderByStatus(@RequestBody Order order){
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("根据状态查询订单 findShopOrderByStatus");
+        return bll.getWaitingOrders(order);
+    }
+
+    /**
+     * 根据订单查询骑手信息
+     * @param order
+     * @return
+     */
+
+    @PostMapping(value = "getDeliveryByOrder")
+    public AjaxResult getDeliveryByOrder(@RequestBody Order order){
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("根据状态查询订单 findShopOrderByStatus");
+        return bll.getDeliveryByOrder(order);
+    }
+
+
+    /**
+     * 商家订单查询 不需要user条件
+     *
+     * @param order
+     * @return
+     */
+    @PostMapping(value = "findOrderById")
+    public AjaxResult findOrderById(@RequestBody Order order) {
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入订单查找 findOrder");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        //设置查找条件
+
+        return bll.selectOneById(order.getId());
+    }
+
+    /**
+     * 商家确认接单
+     *
+     * @param order
+     * @return
+     */
+    @PostMapping(value = "confirmReceipt")
+    public AjaxResult confirmReceipt(@RequestBody Order order) {
+        if (StringUtils.objIsNull(order)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("商家确认接单 confirmReceipt");
+        return bll.confirmReceipt(order);
+    }
+
+    /**
+     * 骑手可接订单
+     * @return
+     */
+    @PostMapping(value = "getAccessible")
+    public AjaxResult getAccessible(){
+        return bll.getAccessible();
+    }
+
+
+
+    /**
+     * 商户每隔5秒查询是否有未接单的订单
+     * @return
+     */
+    @PostMapping(value = "getOrderByStatus")
+    public AjaxResult getOrderByStatus(){
+       return bll.getOrderByStatus();
+    }
+
+    /**
+     * 查询当前店铺的近30天的月销售数量  返回数值
+     * @param shop
+     * @return
+     */
+    @PostMapping("findMonthSaleNum")
+    public AjaxResult findMonthSaleNum(@RequestBody Shop shop){
+        if(StringUtils.objIsNull(shop)){
+            return AjaxResult.build("0","对象不能为空");
+    }
+        return bll.findMonthSaleNum(shop);
+    }
+}

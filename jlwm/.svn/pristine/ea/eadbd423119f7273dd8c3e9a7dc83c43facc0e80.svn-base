@@ -1,0 +1,124 @@
+package service.shop.impl;
+
+import com.alibaba.fastjson.JSON;
+import model.food.Food;
+import model.foodType.FoodType;
+import model.shop.Shop;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.model.AjaxResult;
+import project.util.RedisUtil;
+import project.util.StringUtils;
+import service.food.impl.FoodServiceImpl;
+import service.food.impl.FoodTypeServiceImpl;
+import service.order.impl.OrderServiceImpl;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+@Service
+public class ProtalShopService {
+    private Logger log = LoggerFactory.getLogger(ProtalShopService.class);
+    @Autowired
+    private ShopServiceImpl shopServiceImpl;
+    @Autowired
+    private FoodTypeServiceImpl foodTypeServiceImpl;
+    @Autowired
+    private FoodServiceImpl foodService;
+    @Autowired
+    private OrderServiceImpl orderService;
+
+    public AjaxResult protalShop(Shop shop) {
+        if (RedisUtil.exists("shopInfo:"+shop.getId())){
+            log.info("从缓存中获取店铺信息..");
+            List list= JSON.parseObject(RedisUtil.get("shopInfo:"+shop.getId()),List.class);
+            if (list==null){
+                log.error("list==null"+"====>shop:"+shop.getId());
+                return AjaxResult.build("1", "list==null");
+            }
+            log.info("缓存中的店铺信息--->");
+            log.info(JSON.toJSONString(list));
+            return AjaxResult.build("1", "系统已响应您的请求！", list);
+        }
+        log.info("获取当前店铺的首页数据信息...");
+        List afterList = new ArrayList();
+        Map map = new HashMap();
+        //查找出当前店铺的基本信息
+        Shop shop1= (Shop) shopServiceImpl.selectOneById(shop.getId()).getObj();
+
+        //查找月销售量
+        //shop1.setMonthSaleNum((Integer) orderService.findMonthSaleNum(shop1.getId()).getObj());//设置月销售数量
+        /************该处考虑要不要将月销售数量插入数据库*************/
+        Date date =new Date();
+        DateFormat df = new SimpleDateFormat("HH:mm:ss");
+        int i=StringUtils.compare_date(df.format(date),df.format(shop1.getSpecialTime()));
+        if(i==-1){
+            shop1.setSpecialDeliveryPrice(shop1.getCommonDeliveryPrice());
+        }
+        map.put("shop", shop1);
+        Map map2 = new HashMap();
+        map2.put("shopId", shop.getId());
+        //查找出当前店铺的所有食物分类
+        List<FoodType> listFoodType = (List<FoodType>) foodTypeServiceImpl.select(map2).getObj();
+        List listfoodType = new ArrayList();
+        for (Object list : listFoodType) {
+            FoodType foodType = (FoodType) list;
+            Map newmap = new HashMap();
+            newmap.put("id", foodType.getId());
+            newmap.put("name", foodType.getName());
+            newmap.put("shopId", foodType.getShopId());
+            newmap.put("description", foodType.getDescription());
+            newmap.put("createDate", foodType.getCreateDate());
+            newmap.put("status", foodType.getStatus());
+            newmap.put("typeId", foodType.getTypeId());
+            Map foodmap = new HashMap();
+            foodmap.put("shop", shop);
+            //foodmap.put("stasus","1");
+            foodmap.put("foodType", foodType);
+            //根据shop id值和 foodType id值查找所有食物
+            List<Food> listFood = (List<Food>) foodService.select(foodmap).getObj();
+            if (listFood!=null) {
+                List<Food> afterListFood=new ArrayList<>();
+                //
+                for(Food newlistFood:listFood){  //遍历查询出的食物
+                    newlistFood.setMonthSaleNum((Integer) foodService.findFoodMonthSaleNum(newlistFood.getId()).getObj());//设置当前食物的月销售额
+                    //newlistFood.setMonthSaleNum(1);
+                    afterListFood.add(newlistFood);//将对象添加到新的list中
+                }
+                newmap.put("food", afterListFood);
+            }else {
+                newmap.put("food",new ArrayList<>());
+            }
+            listfoodType.add(newmap);
+        }
+        map.put("foodType", listfoodType);
+        afterList.add(map);
+        Object obj=afterList;
+        RedisUtil.setEx("shopInfo:"+shop1.getId(),JSON.toJSONString(obj),120);
+        log.info("查找数据库店铺信息..");
+        return AjaxResult.build("1", "系统已响应您的请求！", afterList);
+    }
+
+    /**
+     * 商户版店铺首页的食物
+     *
+     * @param food shopId foodType status 条件查询
+     * @return
+     */
+    public AjaxResult protalFoodAdmin(Food food) {
+        Map map = new HashMap();
+        map.put("shop", food.getShop());
+        map.put("foodType",food.getFoodType());
+        map.put("status",food.getStatus());
+        List<Food> list=(List)foodService.select(map).getObj();
+        if(list.size()==0){
+            return AjaxResult.build("0","未查到数据");
+        }
+        return AjaxResult.build("1","查询到数据",list);
+    }
+
+}

@@ -1,0 +1,62 @@
+package model.deliveryOrder;
+
+import model.order.Order;
+import model.user.User;
+import project.model.BaseObject;
+
+/**
+ * 骑手收益流水
+ */
+public class DeliveryMoney extends BaseObject {
+    private Order order;
+    //订单
+    private User user;
+    //    骑手
+    private String type;
+    // 收入 支出
+    private Double money;
+    //金额
+    private Double realMoney;
+    //实际到账金额（即扣除平台收费）
+
+
+    public Double getRealMoney() {
+        return realMoney;
+    }
+
+    public void setRealMoney(Double realMoney) {
+        this.realMoney = realMoney;
+    }
+
+    public Double getMoney() {
+        return money;
+    }
+
+    public void setMoney(Double money) {
+        this.money = money;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+}

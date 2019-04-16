@@ -1,0 +1,26 @@
+package project.util;
+
+/**
+ * @author ls
+ * @version 创建时间：2019年1月24日 下午7:16:15
+ * @ClassName PublicAddress
+ * @Description 公众号
+ */
+public class PublicAddress {
+
+	public static final String appId_jlkj = "wxf32752233fc98fbf";// 计里科技公众号appid
+	public static final String appId_jlxcx = "wxad2a6720407558de";// 计里外卖小程序appid
+	public static final String appSecret_jlxcx = "2a5cc1a11a4792a40b452333c4914010";// 计里外卖小程序appsecret
+	//todo 商户小程序从数据库获取或者从文档接口拿
+	public static final String appId_jlsh = "wxaa2020f2e9036a32";// 计里商户小程序appid
+
+	public static final String appSecret_jlkj = "a01b586ff11b9c17bbb9c866910cc641";// 计里科技公众号appsecret
+	
+	public static final String url = "https://wm.iooint.com/bisview/Views/login";// 消息推送跳转地址
+
+	/*************************************网易云短息*********************************************/
+	public static final String AppKey = "c6976eb6e1c3d29c853ea23d2aa30bda";//计里网应用id
+	public static final String AppSecret = "dd76cdf4dc77";//应用凭证
+	public static final int templateid  = 9654333;//模板id
+	public static final int codeLen =6 ;//验证码长度
+}

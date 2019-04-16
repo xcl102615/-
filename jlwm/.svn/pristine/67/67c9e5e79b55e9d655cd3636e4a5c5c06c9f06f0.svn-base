@@ -1,0 +1,163 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="../../../header/admin.jsp" %>
+<div class="content">
+
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" id="input-group-2" name="input1-group2" class="form-control" placeholder="Username">
+                <span class="input-group-btn">
+                       <button type="button" class="btn btn-primary"><i class="fa fa-search"></i> Search</button>
+                </span>
+            </div>
+        </div>
+
+
+        <div style="padding-top: 2%" class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    所有商品列表
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>食品图片</th>
+                                <th>食品名称</th>
+                                <th>上传时间</th>
+                                <th>所属店铺</th>
+                                <th>所属分类</th>
+                                <th>所属平台分类</th>
+                                <th>食品价格</th>
+                                <th>月销售</th>
+                                <th>销售总量</th>
+                                <th>库存</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="content">
+                            <%--<tr>
+                                <td>用户名</td>
+                                <td class="text-nowrap">性别</td>
+                                <td>年龄</td>
+                                <td>手机</td>
+                                <td>银行卡</td>
+                                <td>注册时间</td>
+                                <td>状态</td>
+                                <td><button class="btn btn-rounded btn-danger">禁用</button></td>
+
+                            </tr>--%>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">食品规格详情</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <td>序号</td>
+                            <th>规格名称</th>
+                            <th>价格</th>
+                            <th>上传时间</th>
+                        </tr>
+                        </thead>
+                        <tbody id="content2">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <%--<button type="button" class="btn btn-primary">Save changes</button>--%>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function taskUI(task) {
+        var str = "";
+        if (task != null) {
+            str += '<tr>\n' +
+                '                                <td><img src="<%=basePath%>/' + task.image + '" style="width: 50px" height="50px"/></td>\n' +
+                '                               <td>' + task.name + '</td>\n' +
+                '                                <td>' + task.createDate + '</td>\n' +
+                '                                <td>' + task.shop.name + '</td>\n' +
+                '                                <td>' + task.foodType.name + '</td>\n' +
+                '                                <td class="text-nowrap">' + task.type.name + '</td>\n' +
+                '                                <td>' + task.price + '</td>\n' +
+                '                                <td>' + task.monthSaleNum + '</td>\n' +
+                '                                <td>' + task.saleCount + '</td>\n' +
+                '                                <td>' + task.number + '</td>\n' +
+                '                                <td>' + task.status + '</td>\n' +
+                '                                <td><button id=' + task.id + ' class="btn btn-rounded btn-success">查看详情</button></td>\n' +
+                '\n' +
+                '                            </tr>'
+            return str;
+        }
+    }
+
+    function foodFormatsUI(foodFormats) {
+        var str = "";
+        if (foodFormats != null) {
+            str += '<tr>\n' +
+                '                                            <td>' + number++ + '</td>\n' +
+                '                                            <td>' + foodFormats.name + '</td>\n' +
+                '                                            <td class="text-nowrap">' + foodFormats.price + '</td>\n' +
+                '                                            <td>' + foodFormats.createDate + '</td>\n' +
+                '\n' +
+                '                                        </tr>'
+            return str;
+        }
+    }
+
+    $(function () {
+
+        doDataAllAsc("<%=basePath%>/food/findAllFood", "", function (data) {
+            console.info(data)
+            $(data.obj).each(function () {
+                $("#content").append(taskUI(this));
+            })
+        })
+        /*关闭事件*/
+        $("body").on("click", "button.btn-link", function () {
+            $("#content2").empty();
+        })
+        $("body").on("click", "button.close", function () {
+            $("#content2").empty();
+        })
+        /*查看详情*/
+        $("body").on("click", "button.btn-success", function () {
+            var id = $(this).attr("id");
+            var food = new Object();
+            food.id = id;
+            doDataAllAsc("<%=basePath%>/food/findFoodById", food, function (data) {
+                $(data.obj.foodFormats).each(function () {
+                    $("#content2").append(foodFormatsUI(this));
+                })
+            })
+
+            $('#modal-2').modal();
+
+        })
+    })
+
+    window.number = 1;//用于计算序号
+</script>

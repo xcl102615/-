@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.user.UserMapper">
+
+    <resultMap id="BaseResultMap" type="model.user.User">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="createDate" property="createDate"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+
+        <result column="unionid" property="unionid"/>
+        <result column="password" property="password"/>
+        <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
+        <result column="sex" property="sex"/>
+        <result column="age" property="age"/>
+        <result column="wxId" property="wxId"/>
+        <result column="qqId" property="qqId"/>
+        <result column="wbId" property="wbId"/>
+        <result column="photo" property="photo"/>
+        <result column="lastLoginIpAddress" property="lastLoginIpAddress"/>
+        <result column="lastLoginDateTime" property="lastLoginDateTime"/>
+        <result column="updateUserInfoDateTime" property="updateUserInfoDateTime"/>
+        <result column="bankCard" property="bankCard"/>
+        <result column="bankCardInfo" property="bankCardInfo"/>
+
+        <collection property="roles" column="id" javaType="ArrayList" ofType="java.lang.Object"
+        select="dao.user.RoleMapper.selectRoles">
+        </collection>
+    </resultMap>
+
+    <!--扩展 resultMap-->
+    <resultMap id="resultMap" type="model.user.User" extends="BaseResultMap">
+        <!--1对1-->
+        <!--<association property="roles">-->
+            <!--<id column="id" property="id"/>-->
+            <!--<result column="name" property="name"/>-->
+        <!--</association>-->
+        <!--1对多-->
+        <!--<collection property="roles" column="id"-->
+                    <!--javaType="ArrayList" ofType="java.lang.Object"-->
+                    <!--select="dao.impl.RoleMapper.selectRoles">-->
+        <!--</collection>-->
+    </resultMap>
+    <sql id="Base_Column_List">
+--         id,name,createDate,status,description,password
+      *
+    </sql>
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="createDate != null">
+                createDate,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="wxId != null">
+                wxId,
+            </if>
+            <if test="photo != null">
+                photo,
+            </if>
+            <if test="unionid != null">
+                unionid,
+            </if>
+            <if test="bankCard != null">
+                bankCard,
+            </if>
+            <if test="bankCardInfo != null">
+                bankCardInfo,
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="createDate != null">
+                #{createDate},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="password != null">
+                #{password},
+            </if>
+            <if test="email != null">
+                #{email},
+            </if>
+            <if test="age != null">
+                #{age},
+            </if>
+            <if test="phone != null">
+                #{phone},
+            </if>
+            <if test="sex != null">
+                #{sex},
+            </if>
+            <if test="wxId != null">
+                #{wxId},
+            </if>
+            <if test="photo != null">
+                #{photo},
+            </if>
+            <if test="unionid != null">
+                #{unionid},
+            </if>
+
+            <if test="bankCard != null">
+                #{bankCard},
+            </if>
+            <if test="bankCardInfo != null">
+                #{bankCardInfo},
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsItemsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="item.id != null">
+                #{item.id},
+            </if>
+            <if test="item.name != null">
+                #{item.name},
+            </if>
+            <if test="item.createDate != null">
+                #{item.createDate},
+            </if>
+            <if test="item.status != null">
+                #{item.status},
+            </if>
+            <if test="item.description != null">
+                #{item.description},
+            </if>
+            <if test="item.password != null">
+                #{item.password},
+            </if>
+            <if test="item.unionid != null">
+                #{item.unionid},
+            </if>
+            <if test="item.bankCard != null">
+                #{item.bankCard},
+            </if>
+            <if test="item.bankCardInfo != null">
+                #{item.bankCardInfo},
+            </if>
+
+        </trim>
+    </sql>
+    <!--涉及条件的统一配置，特殊需求在方法上改动-->
+    <sql id="condition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+                <!--
+                    根据name模糊查询
+                -->
+                <if test="status!=null">
+                    status = #{status} and
+                </if>
+                <if test="phone!=null">
+                    phone = #{phone} and
+                </if>
+                <if test="name!=null">
+                    name = #{name} and
+                </if>
+                <if test="password!=null">
+                    password = #{password} and
+                </if>
+                <if test="createDate!=null">
+                    createDate = #{createDate} and
+                </if>
+                <if test="wxId!=null">
+                    wxId = #{wxId} and
+                </if>
+                <if test="qqId!=null">
+                    qqId = #{qqId} and
+                </if>
+                <if test="wbId!=null">
+                    wbId = #{wbId} and
+                </if>
+                <if test="unionid!=null">
+                    unionid = #{unionid} and
+                </if>
+
+            </trim>
+        </where>
+    </sql>
+    <!--更新操作 统一配置-->
+    <sql id="forUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="name!=null">
+                `name`=#{name},
+            </if>
+            <if test="password!=null">
+                `password`=#{password},
+            </if>
+            <if test="sex!=null">
+                `sex`=#{sex},
+            </if>
+            <if test="phone!=null">
+                `phone`=#{phone},
+            </if>
+            <if test="status!=null">
+                `status`=#{status},
+            </if>
+            <if test="description!=null">
+                `description`=#{description},
+            </if>
+            <if test="createDate!=null">
+                `createDate`=#{createDate},
+            </if>
+            <if test="age!=null">
+                `age`=#{age},
+            </if>
+
+            <if test="wxId!=null">
+                wxId = #{wxId},
+            </if>
+            <if test="qqId!=null">
+                qqId = #{qqId} ,
+            </if>
+            <if test="wbId!=null">
+                wbId = #{wbId} ,
+            </if>
+            <if test="photo!=null">
+                photo = #{photo} ,
+            </if>
+            <if test="lastLoginIpAddress!=null">
+                lastLoginIpAddress = #{lastLoginIpAddress},
+            </if>
+            <if test="updateUserInfoDateTime!=null">
+                updateUserInfoDateTime = #{updateUserInfoDateTime},
+            </if>
+            <if test="lastLoginDateTime!=null">
+                lastLoginDateTime = #{lastLoginDateTime},
+            </if>
+            <if test="bankCard!=null">
+                bankCard = #{bankCard},
+            </if>
+            <if test="bankCardInfo!=null">
+                bankCardInfo = #{bankCardInfo},
+            </if>
+
+        </trim>
+    </sql>
+    <!--组件需要以下方法-->
+    <insert id="save" parameterType="model.user.User">
+        insert into t_user (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+        <!--
+            2 会员
+        -->
+        insert into t_user_role  values (UUID(),#{id},'2');
+    </insert>
+    <insert id="batchSave" parameterType="java.util.List">
+            <foreach collection="list" item="item" index="index">
+                insert into t_user (
+                id,name,createDate,status,description,password
+                ) values
+                (
+                <include refid="columnsItemsValue"/>
+                );
+                insert into t_user_role  values (UUID(),#{id},'2');
+            </foreach>
+    </insert>
+
+    <delete id="delete" parameterType="model.user.User">
+        delete FROM t_user_role where user=#{id};
+        delete from t_user<include refid="condition"/>;
+    </delete>
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from t_user
+        <where>
+            id in
+            <foreach collection="list" item="item" separator="," open="(" close=")">#{item,jdbcType=VARCHAR}</foreach>
+        </where>
+    </delete>
+
+    <update id="update" parameterType="model.user.User">
+        UPDATE t_user
+        <include refid="forUpdate"/>
+        WHERE (`id`=#{id});
+    </update>
+
+    <select id="select" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select * from t_user<include refid="condition"/>;
+    </select>
+    <select id="selectOne" parameterType="model.user.User" resultMap="BaseResultMap">
+        select * from t_user<include refid="condition"/>;
+    </select>
+    <select id="fastFind" parameterType="java.util.Map" resultType="java.util.Map">
+        select id,name from t_user <include refid="condition"/>;
+    </select>
+    <select id="selectOneById" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from t_user where id=#{id};
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select * from t_user ;
+    </select>
+    <select id="findByPage" parameterType="java.util.Map" resultType="java.util.Map">
+        select * from t_user
+        <include refid="condition"/>
+        limit #{start},#{end};
+    </select>
+    <select id="countTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select Count(id) from t_user <include refid="condition"/>;
+    </select>
+    <select id="selectTopX" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select * from t_user <include refid="condition"/> order by (#{orderBy}) desc limit 0,#{topX};
+    </select>
+    <select id="randomSelectTopX" parameterType="java.util.Map" resultMap="BaseResultMap">
+      SELECT * FROM (
+        SELECT * ,ROUND(RAND()) AS newno FROM t_user GROUP BY id
+      )AS t <include refid="condition"/> ORDER BY t.newno asc LIMIT #{topX}
+    </select>
+    <!--功能扩展-->
+    <!--int updatePwd(User user);//密码修改-->
+    <update id="updatePwd" parameterType="model.user.User">
+        update t_user set password=#{password} where id=#{id}
+    </update>
+
+    <!--int addRole(Map map);//给用户新增角色-->
+    <insert id="addRole">
+        insert into t_user_role  values (UUID(),#{user},#{role});
+    </insert>
+    <delete id="delRole" parameterType="java.util.Map">
+        delete from t_user_role where user=#{user} and role=#{role}
+    </delete>
+    <select id="loginByPhone" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select * from v_user where phone=#{phone} and role=#{role};
+    </select>
+    <!--int upPwdByPhone(User user);//通过验证码密码修改-->
+    <update id="upPwdByPhone" parameterType="model.user.User" >
+        update t_user set password=#{password} where phone=#{phone};
+    </update>
+</mapper>

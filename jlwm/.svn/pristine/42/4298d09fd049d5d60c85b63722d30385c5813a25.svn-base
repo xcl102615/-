@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.applicationInfo.ApplicationInfo">
+
+    <resultMap id="BaseResultMap" type="model.recruit.ApplicationInfo">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+    </resultMap>
+
+    <!--扩展 resultMap-->
+    <resultMap id="resultMap" type="model.recruit.ApplicationInfo" extends="BaseResultMap">
+        <result column="sex" property="sex"/>
+        <result column="phone" property="phone"/>
+        <result column="age" property="age"/>
+
+        <!--1对1-->
+        <association property="recruit" column="recruit" javaType="model.recruit.Recruit" select="dao.applicationInfo.ApplicationInfo.selectRecruit"></association>
+        <!--1对多-->
+    </resultMap>
+    <select id="selectRecruit" resultType="model.recruit.Recruit" parameterType="java.lang.String">
+        select * from t_recruit where id=#{id}
+    </select>
+    <sql id="Base_Column_List">
+--         id,name,sex,phone,age,recruit
+      *
+    </sql>
+
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="recruit != null">
+                recruit,
+            </if>
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="sex != null">
+                #{sex},
+            </if>
+            <if test="phone != null">
+                #{phone},
+            </if>
+            <if test="age != null">
+                #{age},
+            </if>
+            <if test="recruit != null">
+                #{recruit.id},
+            </if>
+        </trim>
+    </sql>
+    <!--涉及条件的统一配置，特殊需求在方法上改动-->
+    <sql id="condition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+                <if test="name!=null">
+                    name = #{name} and
+                </if>
+                <if test="recruit!=null">
+                    name = #{recruit} and
+                </if>
+                <if test="education!=null">
+                    name = #{education} and
+                </if>
+                <!--
+                    根据name模糊查询
+                -->
+            </trim>
+        </where>
+    </sql>
+    <!--更新操作 统一配置-->
+    <sql id="forUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="name!=null">
+                `name`=#{name},
+            </if>
+            <if test="name != null">
+                'name'=#{name},
+            </if>
+            <if test="sex != null">
+                sex=#{sex},
+            </if>
+            <if test="phone != null">
+                phone=#{phone},
+            </if>
+            <if test="age != null">
+                age=#{age},
+            </if>
+
+            <if test="recruit != null">
+                recruit=#{recruit.id},
+            </if>
+        </trim>
+    </sql>
+    <!--组件需要以下方法-->
+    <insert id="save" parameterType="model.recruit.ApplicationInfo">
+        insert into t_applicationidInfo (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+    </insert>
+
+    <delete id="delete" parameterType="model.recruit.ApplicationInfo">
+       delete from t_applicationidInfo WHERE `id`=#{id}
+    </delete>
+
+
+    <select id="select" parameterType="java.util.Map" resultMap="resultMap">
+        select * from t_applicationidInfo<include refid="condition"/>;
+    </select>
+    <select id="selectAll" resultMap="resultMap">
+        select * from t_applicationidInfo ;
+    </select>
+</mapper>

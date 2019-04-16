@@ -1,0 +1,201 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="../../header/admin.jsp" %>
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    所有店铺查看
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>商户号</th>
+                                <th>店铺名称</th>
+                                <th>电话</th>
+                                <th>创建时间</th>
+                                <th>状态</th>
+                                <th>启用与禁用</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tbody">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><img id="img" src=""></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <label  class="col-sm-2 control-label">店铺名称</label>
+                    <div id="name" class="col-sm-10">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <label  class="col-sm-2 control-label">店铺logo</label>
+                    <div  class="col-sm-10">
+                        <img id="logo" style="height: 60px">
+                    </div>
+                </div>
+                <div class="row">
+                    <label  class="col-sm-2 control-label">营业执照</label>
+                    <div class="col-sm-10">
+                        <img id="businessLicense" style="height: 60px">
+                    </div>
+                </div>
+                <div class="row">
+                    <label  class="col-sm-2 control-label">营业时间段</label>
+                    <div id="businessHours" class="col-sm-10">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <label  class="col-sm-2 control-label">电话</label>
+                    <div id="phone" class="col-sm-10">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <label  class="col-sm-2 control-label">普通配送费</label>
+                    <div id="commonDeliveryPrice" class="col-sm-10">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <label  class="col-sm-2 control-label">特殊配送费</label>
+                    <div id="specialDeliveryPrice" class="col-sm-10">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <label  class="col-sm-2 control-label">起送价</label>
+                    <div id="minFree" class="col-sm-10">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <label  class="col-sm-2 control-label">是否营业</label>
+                    <div id="open" class="col-sm-10">
+                    </div>
+                </div>
+                <div class="row">
+                    <label  class="col-sm-2 control-label">简介</label>
+                    <div id="text" class="col-sm-10">
+                    </div>
+                </div>
+                <div class="row">
+                    <label  class="col-sm-2 control-label">余额</label>
+                    <div id="money" class="col-sm-10">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <label  class="col-sm-2 control-label">地址</label>
+                    <div id="location" class="col-sm-10">
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        //遍历所有商户信息
+        doDataAll("<%=basePath%>/shop/findShop", {}, function (data) {
+            if (data.code > 0) {
+                $.each(data.obj, function () {
+                    $("#tbody").append("  <tr>\n" +
+                        "                                <td>" + this.id + "</td>\n" +
+                        "                                <td>" + this.name + "</td>\n" +
+                        "                                <td>" + this.phone + "</td>\n" +
+                        "                                <td>" + this.createDate + "</td>\n" +
+                        "                                <td>" + this.status + "</td>\n" +
+                        "                                <td>" + (this.canUse == true ? "启用" : "禁用") + "</td>\n" +
+                        "                                <td id=" + this.id + ">\n" +
+                        "                                    <button class=\"btn btn-rounded btn-success\">启用</button>\n" +
+                        "                                    <button class=\"btn btn-rounded btn-danger\">禁用</button>\n" +
+                        "                                    <button class=\"btn btn-rounded btn-primary\">详情</button>\n" +
+                        "                                </td>\n" +
+                        "                            </tr>")
+                })
+            } else {
+                alert("未查询到商铺信息");
+            }
+        });
+
+        //启用
+        $("#tbody").on("click", ".btn-success", function () {
+            var id = $(this).parent().attr("id");
+            doDataAll("<%=basePath%>/shop/shopSwitch", {"id": id, "canUse": true}, function (data) {
+                if (data.code > 0) {
+                    alert("启用成功");
+                    window.location.reload();
+                } else {
+                    alert("启用失败");
+                }
+            })
+        })
+
+        //禁用
+        $("#tbody").on("click", ".btn-danger", function () {
+            var id = $(this).parent().attr("id");
+            doDataAll("<%=basePath%>/shop/shopSwitch", {"id": id, "canUse": false}, function (data) {
+                if (data.code > 0) {
+                    alert("禁用成功");
+                    window.location.reload();
+                } else {
+                    alert("禁用失败");
+                }
+            })
+        })
+
+        //详情
+        $("#tbody").on("click", ".btn-primary", function () {
+            var id = $(this).parent().attr("id");
+            doDataAll("<%=basePath%>/shop/findShop", {"id": id}, function (data) {
+                if (data.code > 0) {
+                    $("#id").attr("src", "<%=basePath%>/" + data.obj[0].logo);
+                    $("#name").text(data.obj[0].name);
+                    $("#logo").attr("src","<%=baseImgPath%>/"+data.obj[0].logo);
+                    $("#businessLicense").attr("src","<%=baseImgPath%>/"+data.obj[0].businessLicense);
+                    $("#businessHours").text(data.obj[0].businessHours);
+                    $("#phone").text(data.obj[0].phone);
+                    $("#commonDeliveryPrice").text(data.obj[0].commonDeliveryPrice);
+                    $("#specialDeliveryPrice").text(data.obj[0].specialDeliveryPrice);
+                    $("#minFree").text(data.obj[0].minFree);
+                    $("#open").text(data.obj[0].open);
+                    $("#text").text(data.obj[0].text);
+                    $("#money").text(data.obj[0].money);
+                    $("#location").text(data.obj[0].location);
+                }
+            })
+
+            $("#modal-2").modal();
+        })
+    })
+</script>

@@ -1,0 +1,50 @@
+package project.util.wx;
+/**
+ * 微信支付常量类
+ * @author 27418
+ *
+ */
+public class WechatPayConstants {
+    // 商户号
+    public static final String MCH_ID = "1518253231";
+
+    // 商户号密钥
+    public static final String key = "BSyBiTd4Yc09nRlmtjy2kZ02ZayiC633";
+
+    // 小程序ID
+    public static final String appID = "wxad2a6720407558de";
+
+    /*
+     * API秘钥：  F7vtFU8DLAjGOp3MVHKGmeA4P05bKIJv
+     * 商户号 ：1518253231
+     * AppID(小程序ID) wxf2ca98566d959872
+     * AppSecret(小程序密钥) 3239fedd45f5b8c61da10b289ed841b7
+     */
+
+    // 小程序密钥
+    public static final String secret = "2a5cc1a11a4792a40b452333c4914010";
+
+    // 小程序支付API路径
+    public static final String PAY_PATH="https://api.mch.weixin.qq.com/pay/unifiedorder";
+
+    // 小程序退款API路径
+    public static final String REFUND_PATH = "https://api.mch.weixin.qq.com/secapi/pay/refund";
+
+    public static final String payNotifyUrl="https://wm.iooint.com/jl_wm/wchatPay/payNotify";//微信回调路径
+
+
+    // 商户证书文件安装路径
+    //PropKit 读取证书信息 注：此处需添加 Maven依赖
+    //public static final String CERT_PATH = PropKit.get("certPath");
+
+    public static final String CODE_SUCCESS = "000";
+
+    public static final String CODE_ERROR = "999";
+
+    public static final String MSG_NULL = "无效的订单";
+
+    public static final String SIGNERROR = "签名错误";
+
+    public static final String REFUND_SUCCESS = "退款成功!";
+
+}

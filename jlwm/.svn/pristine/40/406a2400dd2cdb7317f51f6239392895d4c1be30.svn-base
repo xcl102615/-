@@ -1,0 +1,74 @@
+package model.shop;
+
+import model.order.Order;
+import project.model.BaseObject;
+
+import java.util.Date;
+
+
+/***
+ * 店家流水
+ */
+public class ShopProfit extends BaseObject {
+    private String shopId;
+    //   店铺
+    private Double money;
+    //提现or收入金额
+    private Integer type;
+    //    1、收入/ 2、支出
+    private Date finishTime = null;
+    //    完成时间
+    private Order orderObj;
+//    收入时的订单编号
+    private Double realMoneyf;
+    //实际到账金额（即扣除平台收费）
+
+
+    public Double getRealMoneyf() {
+        return realMoneyf;
+    }
+
+    public void setRealMoneyf(Double realMoneyf) {
+        this.realMoneyf = realMoneyf;
+    }
+
+    public String getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
+    }
+
+    public Double getMoney() {
+        return money;
+    }
+
+    public void setMoney(Double money) {
+        this.money = money;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public Date getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(Date finishTime) {
+        this.finishTime = finishTime;
+    }
+
+    public Order getOrderObj() {
+        return orderObj;
+    }
+
+    public void setOrderObj(Order orderObj) {
+        this.orderObj = orderObj;
+    }
+}

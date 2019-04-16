@@ -1,0 +1,199 @@
+package service.wchatPay;
+
+import model.order.Order;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.util.PublicAddress;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+import project.util.wx.PayUtil;
+import project.util.wx.RealipUtil;
+import project.util.wx.WechatPayConstants;
+import service.order.impl.OrderServiceImpl;
+import service.wxService.MessagePushService;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.*;
+
+@Service
+public class WchatPaySercive {
+    private static final Logger logger = LoggerFactory.getLogger(WchatPaySercive.class);
+    @Autowired
+    private OrderServiceImpl orderService;
+
+    @Autowired
+    private MessagePushService messagePushService;
+
+    public Map<String, String> unifiedorder(HttpServletRequest request, Order order,String formID) {
+            order=(Order) orderService.selectOneById(order.getId()).getObj();
+         if(order==null){
+             Map map=new HashMap();
+             map.put("code",0);
+             map.put("msg","支付失败，订单不存在");
+             return map;
+         }
+         //从订单中获取实付金额
+        String realPay=String.valueOf((new Double(order.getRealPay()*100)).intValue() );
+        SortedMap<String, String> params = new TreeMap<String, String>();
+        String nonce_str= StringUtils.GetRandom(24);
+        // openId从缓存中获取
+        Map map=(Map) ShiroUtil.getSession().getAttribute("wxInfo");
+        String openId=map.get("openId").toString();
+
+        try {
+            params.put("appid", WechatPayConstants.appID);
+            params.put("mch_id",WechatPayConstants.MCH_ID.trim());
+            params.put("nonce_str", nonce_str);
+            params.put("body", "计里科技");
+            params.put("attach", formID);//附加数据 设置为formId
+            params.put("out_trade_no", order.getId());//订单id
+            params.put("total_fee", realPay);
+            params.put("spbill_create_ip", RealipUtil.getIpAddress(request));
+            params.put("trade_type", "JSAPI");
+            params.put("notify_url", WechatPayConstants.payNotifyUrl);// 回调路径
+            params.put("openid", openId);
+            params.put("sign_type", "MD5");
+            // 生成签名
+            String preStr = PayUtil.createLinkString(params);
+            logger.info("-------------------------------->"+params);
+            logger.info(preStr);
+            String mySign = PayUtil.sign(preStr, WechatPayConstants.key, "utf-8").toUpperCase();
+            params.put("sign", mySign);
+
+            String xml=PayUtil.GetMapToXML(params);
+            String result = PayUtil.httpRequest(WechatPayConstants.PAY_PATH, "POST", PayUtil.GetMapToXML(params));// 不需要验证证书的方法
+            System.out.println(result);
+
+            Map<String, String> notifyMap = PayUtil.doXMLParse(result);
+
+            // 二次签名
+            if ("SUCCESS".equals(notifyMap.get("return_code"))
+                    && notifyMap.get("return_code").equals(notifyMap.get("result_code"))) {
+
+                String prepay_id = notifyMap.get("prepay_id");// 返回的预付单信息
+                logger.info(prepay_id);
+                String timeStamp = String.valueOf(System.currentTimeMillis() / 1000);
+                // 拼接签名需要的参数
+                String stringSignTemp = "appId=" + WechatPayConstants.appID + "&nonceStr=" + nonce_str
+                        + "&package=prepay_id=" + prepay_id + "&signType=MD5&timeStamp=" + timeStamp;
+
+                // 签名算法生成签名
+                String paySign = PayUtil.sign(stringSignTemp, WechatPayConstants.key, "utf-8").toUpperCase();
+
+                SortedMap<String, String> payInfo = new TreeMap<String, String>();
+
+                payInfo.put("appId", WechatPayConstants.appID);
+                payInfo.put("nonceStr", nonce_str);
+                payInfo.put("package", "prepay_id=" + prepay_id);
+                payInfo.put("signType", "MD5");
+                payInfo.put("timeStamp", timeStamp);
+                payInfo.put("paySign", paySign);
+                return payInfo;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     *
+     *微信小程序支付成功后回调函数信息
+     * @param request
+     * @param response
+     */
+    public void payNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        // 获取输入流
+        InputStream in = request.getInputStream();
+        InputStreamReader is = new InputStreamReader(in);
+        String sb = "";
+        int i;
+        while((i=is.read())!=-1){
+            sb = sb +(char)i;
+        }
+        is.close();
+        // sb为微信返回的xml
+        String resXml = null;
+        System.out.println("接收到的报文信息" + sb);
+        Map map = PayUtil.doXMLParse(sb);
+        String return_code = (String) map.get("return_code");
+        String orderId= (String) map.get("out_trade_no");//获取订单id
+        String total_fee= (String) map.get("total_fee");//获取支付金额
+        String formId= (String) map.get("attach");//获取表单id
+        //获取数据库中的支付金额
+        Order order=(Order) orderService.selectOneById(orderId).getObj();
+        String realPay=String.valueOf((new Double(order.getRealPay()*100)).intValue() );
+        if ("SUCCESS".equals(return_code)&&total_fee!=null&&total_fee.equals(realPay)) {
+            // 验证签名是否正确
+            Map<String, String> validParams = PayUtil.paraFilter(map);// 回调验签时需要去除sign和空值参数
+            String validStr = PayUtil.createLinkString(validParams);// 把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
+            String sign = PayUtil.sign(validStr, WechatPayConstants.key, "UTF-8").toUpperCase();// 拼装生成服务器端验证的签名
+
+            // 此处不仅对回调的参数进行验签，还需要对返回的金额与系统订单的金额进行比对等
+            if (sign.equals(map.get("sign"))) {
+                logger.info("支付成功");
+                /* 具体业务逻辑代码 start */
+                order.setUserStatus(2);
+                order.setStatus("已支付");
+                order.setDescription("用户已支付");
+                order.setPaymentTime(new Date());//设置付款时间
+//              如果店铺标记的自动接单状态为true的话 就将订单的状态设置为店家已接单
+                if (order.getShop().getAutoReceiving()){
+                    order.setShopStatus(2);
+                    order.setStatus("已接单");
+                }
+                orderService.update(order);
+
+                /*************向商家发送模板消息*************/
+                messagePushService.sendTemplateBll(orderId);
+
+                /*************向用户发送模板消息*************/
+                messagePushService.sendTemplateToUser(orderId);
+
+                /************向用户发送模板消息**************/
+                messagePushService.sendTemplateBllUser(orderId,formId);
+
+
+
+
+
+                /* 业务逻辑end */
+
+                // 通知微信服务器已经支付成功
+                resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
+                        + "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
+
+            } else {
+
+                logger.info("微信支付回调失败!签名不一致");
+            }
+
+        } else {
+
+            logger.info("支付失败，错误信息为：" + map.get("err_code"));
+
+            resXml = "<xml>" + "<return_code><![CDATA[FAIL]]></return_code>"
+
+                    + "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml>";
+        }
+
+        logger.info(resXml);
+        logger.info("微信支付回调数据结束");
+        // 获取输出流
+        OutputStream os = response.getOutputStream();
+        BufferedOutputStream out = new BufferedOutputStream(os);
+        out.write(resXml.getBytes());
+        out.flush();
+        out.close();
+
+    }
+}

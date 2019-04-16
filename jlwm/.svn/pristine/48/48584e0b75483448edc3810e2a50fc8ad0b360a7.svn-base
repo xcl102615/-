@@ -1,0 +1,96 @@
+package service.order.impl;
+
+import model.deliveryOrder.DeliveryOrder;
+import model.order.Order;
+import model.shop.Shop;
+import model.user.User;
+import org.aspectj.weaver.loadtime.Aj;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.model.AjaxResult;
+import project.service.BaseService;
+import service.order.OrderService;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+@Service
+public class OrderServiceImpl extends BaseService implements OrderService {
+    @Autowired
+    private dao.order.orderMapper dao;
+
+    @Autowired
+    private service.shop.impl.ShopServiceImpl shopService;
+
+    @Autowired
+    private service.deliveryOrder.impl.DeliveryOrderServiceImpl deliveryOrderService;
+
+    @Autowired
+    private service.user.impl.UserServiceImpl userService;
+
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+
+    /**
+     * 获取商家待接单的订单
+     *
+     * @return
+     */
+    public AjaxResult getWaitingOrders() {
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        Order order=new Order();
+        order.setUserStatus(2);
+        order.setShopStatus(1);
+        List list=dao.findShopOrder(order);
+        if(list==null||list.size()==0){
+            return AjaxResult.build("0","未查询出数据");
+        }
+        return AjaxResult.build("1","查询成功",list);
+    }
+
+    /**
+     * 查询商家待送出订单
+     * @return
+     */
+    public AjaxResult getToBeSentOut(){
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        Order order=new Order();
+        order.setUserStatus(2);
+        order.setShopStatus(2);
+        List<Order> list=dao.getToBeSentOut(order);
+        List deliveryOrderList = new ArrayList();
+        for(Order o:list){
+            Map map=new HashMap();
+            if(o.getDeliveryStatus()!=1){
+
+                //骑手接单查询骑手信息和订单信息
+                DeliveryOrder deliveryOrder = new DeliveryOrder();
+                deliveryOrder.setOrder(o);
+                Object obj=deliveryOrderService.selectOne(deliveryOrder).getObj();
+                deliveryOrder = (DeliveryOrder) deliveryOrderService.selectOne(deliveryOrder).getObj();
+                deliveryOrder.setOrder(o);//设置订单信息
+                deliveryOrder.setUser((User) userService.selectOneById(deliveryOrder.getUser().getId()).getObj());//设置骑手信息
+                map.put("deliveryOrder", deliveryOrder);
+                deliveryOrderList.add(map);
+            }else{
+                map.put("order",o);
+                deliveryOrderList.add(map);
+            }
+
+        }
+    return AjaxResult.build("1","查询成功",deliveryOrderList);
+
+    }
+}

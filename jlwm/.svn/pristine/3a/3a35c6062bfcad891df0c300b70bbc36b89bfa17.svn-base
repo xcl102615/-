@@ -1,0 +1,79 @@
+package controller.printer;
+
+import model.printer.Printer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import project.util.StringUtils;
+import service.printer.PrinterService;
+
+import java.util.Map;
+
+@RequestMapping(value = "printer")
+@RestController
+public class PrinterController {
+    private Logger log = LoggerFactory.getLogger(PrinterController.class);
+    @Autowired
+    private PrinterService service;
+
+    @RequestMapping(value = "save")
+    public AjaxResult save(@RequestBody Printer printer){
+        return service.save(printer);
+    }
+
+
+    @RequestMapping(value = "selectAll")
+    public AjaxResult selectAll(){
+        return service.selectAll();
+    }
+
+    @RequestMapping(value = "select")
+    public AjaxResult select(Map map){
+        return service.select(map);
+    }
+
+    @RequestMapping(value = "delete")
+    public AjaxResult delete(@RequestBody Printer printer){
+        return service.delete(printer);
+    }
+    @RequestMapping(value = "update")
+    public AjaxResult update(@RequestBody Printer printer){
+        return service.update(printer);
+    }
+
+    /**
+     * 添加打印机
+     * @param printer
+     * @return
+     */
+    @PostMapping(value = "addPrinter")
+    public AjaxResult addPrinter(@RequestBody Printer printer){
+
+        if (StringUtils.objIsNull(printer)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        if(printer.getShopId()==null||printer.getShopId().equals("")){
+            return AjaxResult.build("0", "shopId不能为空");
+        }
+        return service.addPrinter(printer);
+    }
+
+    /**
+     * 打印
+     * @param map 需要orderId和sn
+     * @return
+     */
+    @PostMapping(value = "print")
+    public AjaxResult print(@RequestBody Map map){
+        if(map==null||map.isEmpty()){
+            return AjaxResult.build("0","参数错误");
+        }
+
+        return service.print(map);
+    }
+}

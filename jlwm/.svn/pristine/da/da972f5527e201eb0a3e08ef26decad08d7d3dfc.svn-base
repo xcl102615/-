@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.shop.ShopProfit">
+
+    <resultMap id="BaseResultMap" type="model.shop.ShopProfit">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="createDate" property="createDate"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+    </resultMap>
+
+    <!--扩展 resultMap-->
+    <resultMap id="resultMap" type="model.shop.ShopProfit" extends="BaseResultMap">
+        <result column="type" property="type"/>
+        <result column="shopId" property="shopId"/>
+        <result column="finishTime" property="finishTime"/>
+        <!--1对1-->
+        <association property="orderObj" javaType="model.order.Order">
+            <id column="orderObj" property="id"/>
+        </association>
+    </resultMap>
+    
+
+    <sql id="Base_Column_List">
+--         id,name,createDate,status,description,password
+      *
+    </sql>
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="createDate != null">
+                createDate,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+
+            <if test="type != null">
+                type,
+            </if>
+
+            <if test="shopId != null">
+                shopId,
+            </if>
+            <if test="finishTime != null">
+                finishTime,
+            </if>
+            <if test="orderObj != null">
+                orderObj,
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="createDate != null">
+                #{createDate},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+
+            <if test="type != null">
+                #{type},
+            </if>
+            <if test="shopId != null">
+                #{shopId},
+            </if>
+            <if test="finishTime != null">
+                #{finishTime},
+            </if>
+            <if test="orderObj != null">
+                #{orderObj.id},
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsItemsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="item.id != null">
+                #{item.id},
+            </if>
+            <if test="item.name != null">
+                #{item.name},
+            </if>
+            <if test="item.createDate != null">
+                #{item.createDate},
+            </if>
+            <if test="item.status != null">
+                #{item.status},
+            </if>
+            <if test="item.description != null">
+                #{item.description},
+            </if>
+
+            <if test="item.type != null">
+                #{item.type},
+            </if>
+            <if test="item.shopId != null">
+                #{item.shopId},
+            </if>
+            <if test="item.finishTime != null">
+                #{item.finishTime},
+            </if>
+            <if test="item.orderObj != null">
+                #{item.orderObj.id},
+            </if>
+
+        </trim>
+    </sql>
+    <!--涉及条件的统一配置，特殊需求在方法上改动-->
+    <sql id="condition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+                <if test="shopId!=null">
+                    shopId = #{shopId} and
+                </if>
+                <!--
+                    根据name模糊查询
+                -->
+            </trim>
+        </where>
+    </sql>
+    <!--更新操作 统一配置-->
+    <sql id="forUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="name!=null">
+                `name`=#{name},
+            </if>
+            <if test="status!=null">
+                `status`=#{status},
+            </if>
+            <if test="description!=null">
+                `description`=#{description},
+            </if>
+            <if test="createDate!=null">
+                `createDate`=#{createDate},
+            </if>
+            <if test="type!=null">
+                type = #{type},
+            </if>
+            <if test="shopId!=null">
+                shopId = #{shopId} ,
+            </if>
+            <if test="finishTime!=null">
+                finishTime = #{finishTime},
+            </if>
+            <if test="orderObj!=null">
+                orderObj = #{orderObj.id},
+            </if>
+
+        </trim>
+    </sql>
+    <!--组件需要以下方法-->
+    <insert id="save" parameterType="model.shop.ShopProfit">
+        insert into t_shopProfit (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+    </insert>
+
+    <delete id="delete" parameterType="model.shop.ShopProfit">
+        delete from t_shopProfit<include refid="condition"/>;
+    </delete>
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from t_shopProfit
+        <where>
+            id in
+            <foreach collection="list" item="item" separator="," open="(" close=")">#{item,jdbcType=VARCHAR}</foreach>
+        </where>
+    </delete>
+
+    <update id="update" parameterType="model.shop.ShopProfit">
+        UPDATE t_shopProfit
+        <include refid="forUpdate"/>
+        WHERE (`id`=#{id} and `shopId`=#{shopId});
+    </update>
+
+    <select id="select" parameterType="java.util.Map" resultMap="resultMap">
+        select * from t_shopProfit<include refid="condition"/>;
+    </select>
+    <select id="selectOne" parameterType="model.shop.ShopProfit" resultMap="resultMap">
+        select * from t_shopProfit<include refid="condition"/>;
+    </select>
+    <select id="fastFind" parameterType="java.util.Map" resultType="java.util.Map">
+        select id,name from t_shopProfit <include refid="condition"/>;
+    </select>
+    <select id="selectOneById" parameterType="java.lang.String" resultMap="resultMap">
+        select * from t_shopProfit where id=#{id};
+    </select>
+    <select id="selectAll" resultMap="resultMap">
+        select * from t_shopProfit ;
+    </select>
+    <select id="findByPage" parameterType="java.util.Map" resultType="java.util.Map">
+        select * from t_shopProfit
+        <include refid="condition"/>
+        limit #{start},#{end};
+    </select>
+    <select id="countTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select Count(id) from t_shopProfit <include refid="condition"/>;
+    </select>
+    <select id="selectTopX" parameterType="java.util.Map" resultMap="resultMap">
+        select * from t_shopProfit <include refid="condition"/> order by (#{orderBy}) desc limit 0,#{topX};
+    </select>
+    <select id="randomSelectTopX" parameterType="java.util.Map" resultMap="resultMap">
+      SELECT * FROM (
+        SELECT * ,ROUND(RAND()) AS newno FROM t_shop GROUP BY id
+      )AS t <include refid="condition"/> ORDER BY t.newno asc LIMIT #{topX}
+    </select>
+    <!--功能扩展-->
+</mapper>

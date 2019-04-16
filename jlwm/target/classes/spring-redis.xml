@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+         存在多个 placeholder 时，后加载的资源文件会失效
+         注意在主配置文件中 配置redis 配置文件
+    -->
+    <!--<contex:property-placeholder location="redis.properties"/>-->
+
+    <!--带密码的jedisPool-->
+    <bean class="redis.clients.jedis.JedisPool" id="jedisPool" >
+        <constructor-arg name="host" value="${redis.host}"></constructor-arg>
+        <constructor-arg name="port" value="${redis.port}"></constructor-arg>
+        <!--<constructor-arg name="password" value="${redis.auth}"></constructor-arg>-->
+        <constructor-arg name="timeout" value="${redis.timeout}"></constructor-arg>
+        <constructor-arg name="poolConfig" ref="JedisPoolConfig"></constructor-arg>
+    </bean>
+    <!--配置连接池的属性 -->
+    <bean id="JedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${redis.maxTotal}"></property>
+        <property name="MaxIdle" value="${redis.MaxIdle}"></property>
+        <property name="MaxWaitMillis" value="${redis.MaxWaitMillis}"></property>
+    </bean>
+    <!--redis 集群-->
+      <!--<bean class="redis.clients.jedis.JedisCluster">-->
+        <!--<constructor-arg index="0">-->
+            <!--<set>-->
+                <!--<bean class="redis.clients.jedis.HostAndPort">-->
+                    <!--<constructor-arg name="host" value="${redis.host1}"></constructor-arg>-->
+                    <!--<constructor-arg name="port" value="${redis.port1}"></constructor-arg>-->
+                <!--</bean>-->
+                <!--<bean class="redis.clients.jedis.HostAndPort">-->
+                    <!--<constructor-arg name="host" value="${redis.host2}"></constructor-arg>-->
+                    <!--<constructor-arg name="port" value="${redis.port2}"></constructor-arg>-->
+                <!--</bean>-->
+                <!--<bean class="redis.clients.jedis.HostAndPort">-->
+                    <!--<constructor-arg name="host" value="${redis.host3}"></constructor-arg>-->
+                    <!--<constructor-arg name="port" value="${redis.port3}"></constructor-arg>-->
+                <!--</bean>-->
+                <!--<bean class="redis.clients.jedis.HostAndPort">-->
+                    <!--<constructor-arg name="host" value="${redis.host4}"></constructor-arg>-->
+                    <!--<constructor-arg name="port" value="${redis.port4}"></constructor-arg>-->
+                <!--</bean>-->
+                <!--<bean class="redis.clients.jedis.HostAndPort">-->
+                    <!--<constructor-arg name="host" value="${redis.host5}"></constructor-arg>-->
+                    <!--<constructor-arg name="port" value="${redis.port5}"></constructor-arg>-->
+                <!--</bean>-->
+                <!--<bean class="redis.clients.jedis.HostAndPort">-->
+                    <!--<constructor-arg name="host" value="${redis.host6}"></constructor-arg>-->
+                    <!--<constructor-arg name="port" value="${redis.port6}"></constructor-arg>-->
+                <!--</bean>-->
+            <!--</set>-->
+        <!--</constructor-arg>-->
+          <!--<constructor-arg index="1" value="${redis.timeout}"></constructor-arg>-->
+          <!--<constructor-arg index="2" value="${redis.sockettimeout}"></constructor-arg>-->
+          <!--<constructor-arg index="3" value="${redis.maxAttempts}"></constructor-arg>-->
+          <!--<constructor-arg index="4" value="${redis.auth}"></constructor-arg>-->
+          <!--<constructor-arg index="5" ref="JedisPoolConfig"></constructor-arg>-->
+      <!--</bean>-->
+
+</beans>

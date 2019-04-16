@@ -1,0 +1,129 @@
+package model.shop;
+
+import model.user.User;
+import project.model.BaseObject;
+
+
+public class Shop extends BaseObject {
+    private User user;
+//    店铺所有者
+    private String logo;
+//    logo
+    private Integer minFree;
+//    最低消费
+    private String distribution_type;
+//    配送方式
+    private String businessHours;
+//    营业时间
+    private String phone;
+//    电话
+    private String location;
+//    地址
+    private String latitude;
+//    经度
+    private String longitude;
+//    维度
+    private String text;
+//    公告
+    private boolean isOpen;
+//    是否营业 1.营业中 0.休息中
+    private double money;
+//    收益
+
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+
+    public Integer getMinFree() {
+        return minFree;
+    }
+
+    public void setMinFree(Integer minFree) {
+        this.minFree = minFree;
+    }
+
+    public String getDistribution_type() {
+        return distribution_type;
+    }
+
+    public void setDistribution_type(String distribution_type) {
+        this.distribution_type = distribution_type;
+    }
+
+    public String getBusinessHours() {
+        return businessHours;
+    }
+
+    public void setBusinessHours(String businessHours) {
+        this.businessHours = businessHours;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public void setOpen(boolean open) {
+        isOpen = open;
+    }
+
+    public double getMoney() {
+        return money;
+    }
+
+    public void setMoney(double money) {
+        this.money = money;
+    }
+}

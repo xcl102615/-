@@ -1,0 +1,11 @@
+package dao.order;
+
+import model.order.Order;
+import project.dao.BaseDao;
+
+import java.util.List;
+
+public interface orderMapper extends BaseDao {
+
+    List<Order> findShopOrder(Order order);//查询商家订单
+}

@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.order.orderMapper">
+
+    <resultMap id="BaseResultMap" type="model.order.Order">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="createDate" property="createDate"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+
+    </resultMap>
+
+    <!--扩展 resultMap-->
+    <resultMap id="resultMap" type="model.order.Order" extends="BaseResultMap">
+        <result column="userStatus" property="userStatus"/>
+        <result column="shopStatus" property="shopStatus"/>
+        <result column="deliveryStatus" property="deliveryStatus"/>
+        <result column="deliveryPrice" property="deliveryPrice"/>
+        <result column="discountMoney" property="discountMoney"/>
+        <result column="realPay" property="realPay"/>
+        <result column="totalPrice" property="totalPrice"/>
+        <result column="remarks" property="remarks"/>
+        <result column="deliveryType" property="deliveryType"/>
+        <!--1对1-->
+        <association property="user" javaType="model.user.User">
+            <id column="user" property="id"/>
+        </association>
+        <association property="shop" javaType="model.shop.Shop">
+            <id column="shop" property="id"/>
+        </association>
+        <association property="address" javaType="model.address.Address">
+            <id column="address" property="id"/>
+        </association>
+        <!--1对多-->
+        <collection property="orderDetails" column="id"
+                    javaType="ArrayList" ofType="java.lang.Object"
+                    select="getOrderDetails">
+        </collection>
+    </resultMap>
+    <select id="getOrderDetails" parameterType="java.lang.String" resultType="model.order.OrderDetails">
+        select * from t_orderDetails where parent=#{id}
+    </select>
+    <sql id="Base_Column_List">
+--         id,name,createDate,status,description,password
+      *
+    </sql>
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="createDate != null">
+                createDate,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+
+            <if test="userStatus != null">
+                userStatus,
+            </if>
+            <if test="shopStatus != null">
+                shopStatus,
+            </if>
+            <if test="deliveryStatus != null">
+                deliveryStatus,
+            </if>
+            <if test="deliveryPrice != null">
+                deliveryPrice,
+            </if>
+            <if test="discountMoney != null">
+                discountMoney,
+            </if>
+            <if test="realPay != null">
+                realPay,
+            </if>
+            <if test="totalPrice != null">
+                totalPrice,
+            </if>
+            <if test="remarks != null">
+                remarks,
+            </if>
+            <if test="deliveryType != null">
+                deliveryType,
+            </if>
+            <if test="shop != null">
+                shop,
+            </if>
+            <if test="address != null">
+                address,
+            </if>
+            <if test="user != null">
+                user,
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="createDate != null">
+                #{createDate},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+
+            <if test="userStatus != null">
+                #{userStatus},
+            </if>
+            <if test="shopStatus != null">
+                #{shopStatus},
+            </if>
+            <if test="deliveryStatus != null">
+                #{deliveryStatus},
+            </if>
+            <if test="deliveryPrice != null">
+                #{deliveryPrice},
+            </if>
+            <if test="discountMoney != null">
+                #{discountMoney},
+            </if>
+            <if test="realPay != null">
+                #{realPay},
+            </if>
+            <if test="totalPrice != null">
+                #{totalPrice},
+            </if>
+            <if test="remarks != null">
+                #{remarks},
+            </if>
+            <if test="deliveryType != null">
+                #{deliveryType},
+            </if>
+            <if test="shop != null">
+                #{shop.id},
+            </if>
+            <if test="address != null">
+                #{address.id},
+            </if>
+            <if test="user != null">
+                #{user.id},
+            </if>
+        </trim>
+    </sql>
+    <!--涉及条件的统一配置，特殊需求在方法上改动-->
+    <sql id="condition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+                <!--
+                    根据name模糊查询
+                -->
+                <if test="user!=null">
+                    user=#{user.id} and
+                </if>
+            </trim>
+        </where>
+    </sql>
+    <!--更新操作 统一配置-->
+    <sql id="forUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="name!=null">
+                `name`=#{name},
+            </if>
+            <if test="status!=null">
+                `status`=#{status},
+            </if>
+            <if test="description!=null">
+                `description`=#{description},
+            </if>
+            <if test="userStatus!=null">
+                userStatus = #{userStatus},
+            </if>
+            <if test="shopStatus!=null">
+                shopStatus = #{shopStatus} ,
+            </if>
+            <if test="deliveryStatus!=null">
+                deliveryStatus = #{deliveryStatus} ,
+            </if>
+            <if test="deliveryPrice!=null">
+                deliveryPrice = #{deliveryPrice} ,
+            </if>
+            <if test="discountMoney!=null">
+                discountMoney = #{discountMoney},
+            </if>
+            <if test="realPay!=null">
+                realPay = #{realPay},
+            </if>
+            <if test="totalPrice!=null">
+                totalPrice = #{totalPrice},
+            </if>
+            <if test="remarks!=null">
+                remarks = #{remarks} ,
+            </if>
+            <if test="address!=null">
+                address = #{address.id},
+            </if>
+            <if test="deliveryType!=null">
+                deliveryType = #{deliveryType},
+            </if>
+           
+        </trim>
+    </sql>
+    <!--组件需要以下方法-->
+    <insert id="save" parameterType="model.order.Order">
+        insert into t_order (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+        <if test="orderDetails!=null">
+            <foreach collection="orderDetails" item="item" index="index">
+                insert into t_orderDetails (`id`,`name`,`status`,`createDate`,`description`,`foodName`,`num`,`price`,`parent`)
+                values (UUID(),#{item.name},#{item.status},#{createDate},#{item.description},#{item.foodName},#{item.num},#{item.price},#{id});
+            </foreach>
+        </if>
+    </insert>
+
+    <delete id="delete" parameterType="model.order.Order">
+        delete from t_order where id=#{id} and `user`=#{user.id};
+    </delete>
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from t_order
+        <where>
+            id in
+            <foreach collection="list" item="item" separator="," open="(" close=")">#{item,jdbcType=VARCHAR}</foreach>
+            and `user`=#{user.id};
+        </where>
+    </delete>
+
+    <update id="update" parameterType="model.order.Order">
+        UPDATE t_order
+        <include refid="forUpdate"/>
+        WHERE (`id`=#{id});
+    </update>
+
+    <select id="select" parameterType="java.util.Map" resultMap="resultMap">
+        select * from t_order<include refid="condition"/>;
+    </select>
+    <select id="selectOne" parameterType="model.order.Order" resultMap="resultMap">
+        select * from t_order<include refid="condition"/>;
+    </select>
+    <select id="fastFind" parameterType="java.util.Map" resultType="java.util.Map">
+        select id,name from t_order <include refid="condition"/>;
+    </select>
+    <select id="selectOneById" parameterType="java.lang.String" resultMap="resultMap">
+        select * from t_order where id=#{id};
+    </select>
+    <select id="selectAll" resultMap="resultMap">
+        select * from t_order ;
+    </select>
+    <select id="findByPage" parameterType="java.util.Map" resultType="java.util.Map">
+        select * from t_order
+        <include refid="condition"/>
+        limit #{start},#{end};
+    </select>
+    <select id="countTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select Count(id) from t_order <include refid="condition"/>;
+    </select>
+    <select id="selectTopX" parameterType="java.util.Map" resultMap="resultMap">
+        select * from t_order <include refid="condition"/> order by (#{orderBy}) desc limit 0,#{topX};
+    </select>
+    <select id="randomSelectTopX" parameterType="java.util.Map" resultMap="resultMap">
+      SELECT * FROM (
+        SELECT * ,ROUND(RAND()) AS newno FROM t_order GROUP BY id
+      )AS t <include refid="condition"/> ORDER BY t.newno asc LIMIT #{topX}
+    </select>
+    <!--功能扩展-->
+    <sql id="shopCondition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+
+                <if test="shop!=null">
+                    shop = #{shop.id} and
+                </if>
+                <if test="userStatus!=0">
+                    userStatus=#{userStatus} and
+                </if>
+                <if test="shopStatus!=0">
+                    shopStatus=#{shopStatus} and
+                </if>
+                <if test="deliveryStatus!=0">
+                    deliveryStatus=#{deliveryStatus} and
+                </if>
+
+            </trim>
+        </where>
+    </sql>
+    <!--List<Order> findShopOrder(Order order);//查询商家订单-->
+    <select id="findShopOrder" parameterType="model.order.Order" resultMap="resultMap">
+        select * from t_order  <include refid="shopCondition"/>
+    </select>
+
+    <!--List<Order> getToBeSentOut(Order order);//查询商家待送出订单-->
+    <select id="getToBeSentOut" parameterType="model.order.Order" resultMap="resultMap">
+        select * from t_order where userStatus=#{userStatus} and shopStatus=#{shopStatus} and  deliveryStatus &lt;4
+    </select>
+
+    <!--List<Order> findShopOrderAll(Order order);//查询商家待送出订单-->
+    <select id="findShopOrderAll" parameterType="model.order.Order" resultMap="resultMap">
+        select * from t_order where shop=#{shop.id} and userStatus=#{userStatus};
+    </select>
+</mapper>

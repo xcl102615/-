@@ -1,0 +1,130 @@
+package controller.wchatPay;
+
+import model.order.Order;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import project.model.AjaxResult;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+import project.util.wx.HttpRequest;
+import project.util.wx.PayUtil;
+import project.util.wx.RealipUtil;
+import project.util.wx.WechatPayConstants;
+import service.order.impl.OrderServiceImpl;
+import service.wchatPay.WchatPaySercive;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.soap.Addressing;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+@RestController
+@RequestMapping("wchatPay")
+public class WchatPayController {
+    private static final Logger logger = LoggerFactory.getLogger(WchatPayController.class);
+
+    @Autowired
+    private WchatPaySercive bll;
+    @Autowired
+    private OrderServiceImpl orderService;
+
+    /**
+     * 统一下单接口
+     *
+     * @param
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "/unifiedorder", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, String> unifiedorder(@RequestBody Order order,HttpServletRequest request) {
+        if (StringUtils.objIsNull(order)) {
+            Map map=new HashMap();
+            map.put("code","0");
+            map.put("msg","参数错误");
+            return map;
+        }
+        return bll.unifiedorder(request,order);
+    }
+
+    /**
+     *
+     *微信小程序支付成功后回调函数信息
+     * @param request
+     * @param response
+     */
+    @RequestMapping(value = "/payNotify")
+    public void payNotify(HttpServletRequest request, HttpServletResponse response,String orderId) throws Exception {
+        bll.payNotify(request,response,orderId);
+    }
+
+    /**
+     * 退款
+     *
+     * @param orderId
+     *            商户订单号
+     * @param refundId
+     *            商户退款单号
+     * @param totalFee
+     *            订单金额
+     * @param refundFee
+     *            退款金额
+     * @param refundAccount
+     *            退款资金来源（默认传 "REFUND_SOURCE_UNSETTLED_FUNDS"）
+     * @return
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @RequestMapping(value = "/refundOrder")
+    @ResponseBody
+    public Map refundOrder(String orderId, String refundId, int totalFee, int refundFee, String refundAccount) {
+
+        Map map = new HashMap();
+        try {
+            SortedMap<String, String> params = new TreeMap<String, String>();
+
+            // 签名算法
+            params.put("appid", WechatPayConstants.appID);
+            params.put("mch_id", WechatPayConstants.MCH_ID);
+            //RandomStringGenerator.getRandomStringByLength(24)
+            params.put("nonce_str",StringUtils.GetRandom(24) );
+            // 商家订单号和退款单号二选一
+            params.put("out_trade_no", orderId);// 商家訂單號
+            params.put("out_refund_no", refundId);// 商户退款单号
+            params.put("sign_type", "MD5");
+            params.put("total_fee", String.valueOf(totalFee));// 订单总金额
+            params.put("refund_fee", String.valueOf(refundFee));// 退款的金额
+
+            String preStr = PayUtil.createLinkString(params); // 把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
+            String mySign = PayUtil.sign(preStr, WechatPayConstants.key, "utf-8").toUpperCase();
+            params.put("sign", mySign);
+            String xmlStr = HttpRequest.sendPost(WechatPayConstants.REFUND_PATH, PayUtil.GetMapToXML(params));
+            System.out.println(xmlStr);
+            Map notifyMap = PayUtil.doXMLParse(xmlStr);
+            if ("SUCCESS".equals(notifyMap.get("return_code"))) {
+                if ("SUCCESS".equals(notifyMap.get("result_code"))) {
+
+                    // 退款申请成功
+                    System.out.println("退款成功");
+                    // 业务逻辑操作
+
+                    map.put("code", WechatPayConstants.CODE_SUCCESS);
+                    map.put("msg", WechatPayConstants.REFUND_SUCCESS);
+                    map.put("data", "");
+                    return map;
+                }
+            }
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+}

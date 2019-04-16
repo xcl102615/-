@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.food.FoodDao">
+
+    <resultMap id="BaseResultMap" type="model.food.Food">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="createDate" property="createDate"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+
+    </resultMap>
+
+    <!--扩展 resultMap-->
+    <resultMap id="resultMap" type="model.food.Food" extends="BaseResultMap">
+        <result column="image" property="image"/>
+        <result column="price" property="price"/>
+        <result column="monthSaleNum" property="monthSaleNum"/>
+        <result column="saleCount" property="saleCount"/>
+        <result column="list" property="list"/>
+        <result column="number" property="number"/>
+        <!--1对1-->
+        <association property="shop" javaType="model.shop.Shop">
+            <id column="shop" property="id"/>
+            <id column="shopName" property="name"/>
+            <id column="isOpen" property="isOpen"/>
+        </association>
+        <association property="foodType" javaType="model.foodType.FoodType">
+            <id column="foodType" property="id"/>
+            <id column="foodTypeName" property="name"/>
+        </association>
+        <association property="type" javaType="model.type.Type">
+            <id column="type" property="id"/>
+            <id column="typeName" property="name"/>
+        </association>
+        <!--1对多-->
+        <collection property="foodFormats" column="id"
+                    javaType="ArrayList" ofType="java.lang.Object"
+                    select="getFoodFormats">
+        </collection>
+    </resultMap>
+    <select id="getFoodFormats" parameterType="java.lang.String" resultType="model.food.FoodFormat">
+        select * from t_foodFormat where parent=#{id}
+    </select>
+    <sql id="Base_Column_List">
+--         id,name,createDate,status,description,password
+      *
+    </sql>
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="createDate != null">
+                createDate,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+
+            <if test="image != null">
+                image,
+            </if>
+
+            <if test="price != null">
+                price,
+            </if>
+            <if test="monthSaleNum != null">
+                monthSaleNum,
+            </if>
+            <if test="saleCount != null">
+                saleCount,
+            </if>
+            <if test="list != null">
+                list,
+            </if>
+            <if test="shop != null">
+                shop,
+            </if>
+            <if test="foodType != null">
+                foodType,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="number!= null">
+                number,
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="createDate != null">
+                #{createDate},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+
+            <if test="image != null">
+                #{image},
+            </if>
+            <if test="price != null">
+                #{price},
+            </if>
+            <if test="monthSaleNum != null">
+                #{monthSaleNum},
+            </if>
+            <if test="saleCount != null">
+                #{saleCount},
+            </if>
+            <if test="list != null">
+                #{list},
+            </if>
+            <if test="shop != null">
+                #{shop.id},
+            </if>
+            <if test="foodType != null">
+                #{foodType.id},
+            </if>
+            <if test="type != null">
+                #{type.id},
+            </if>
+            <if test="number != null">
+                #{number},
+            </if>
+        </trim>
+    </sql>
+    <sql id="columnsItemsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="item.id != null">
+                #{item.id},
+            </if>
+            <if test="item.name != null">
+                #{item.name},
+            </if>
+            <if test="item.createDate != null">
+                #{item.createDate},
+            </if>
+            <if test="item.status != null">
+                #{item.status},
+            </if>
+            <if test="item.description != null">
+                #{item.description},
+            </if>
+
+            <if test="item.image != null">
+                #{item.image},
+            </if>
+            <if test="item.price != null">
+                #{item.price},
+            </if>
+            <if test="item.monthSaleNum != null">
+                #{item.monthSaleNum},
+            </if>
+            <if test="item.saleCount != null">
+                #{item.saleCount},
+            </if>
+            <if test="item.list != null">
+                #{item.list},
+            </if>
+            <if test="item.shop != null">
+                #{item.shop.id},
+            </if>
+            <if test="item.foodType != null">
+                #{item.foodType.id},
+            </if>
+            <if test="item.type != null">
+                #{item.type.id},
+            </if>
+            <if test="item.number != null">
+                #{item.number},
+            </if>
+        </trim>
+    </sql>
+    <sql id="conditionFoodFormat">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+                <if test="name!=null">
+                    name = #{name} and
+                </if>
+            </trim>
+        </where>
+    </sql>
+    <!--涉及条件的统一配置，特殊需求在方法上改动-->
+    <sql id="condition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+                <if test="shop!=null">
+                    shop = #{shop.id} and
+                </if>
+                <if test="foodType!=null">
+                    foodType = #{foodType.id} and
+                </if>
+                <if test="type!=null">
+                    type = #{type} and
+                </if>
+                <if test="status!=null">
+                    status = #{status} and
+                </if>
+                <!--
+                    根据name模糊查询
+                -->
+                <if test="name!=null">
+                    name like '%${name}%' or shopName like '%${name}%' and
+                </if>
+            </trim>
+        </where>
+    </sql>
+    <!--更新操作 统一配置-->
+    <sql id="fomateUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="name!=null">
+                `name`=#{item.name},
+            </if>
+            <if test="status!=null">
+                `status`=#{item.status},
+            </if>
+            <if test="description!=null">
+                `description`=#{item.description},
+            </if>
+            <if test="createDate!=null">
+                `createDate`=#{item.createDate},
+            </if>
+            <if test="price!=null">
+                `price`=#{item.price},
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="forUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="name!=null">
+                `name`=#{name},
+            </if>
+            <if test="status!=null">
+                `status`=#{status},
+            </if>
+            <if test="description!=null">
+                `description`=#{description},
+            </if>
+            <if test="createDate!=null">
+                `createDate`=#{createDate},
+            </if>
+
+            <if test="image!=null">
+                image = #{image},
+            </if>
+            <if test="price!=null">
+                price = #{price} ,
+            </if>
+            <if test="monthSaleNum!=null">
+                monthSaleNum = #{monthSaleNum} ,
+            </if>
+            <if test="saleCount!=null">
+                saleCount = #{saleCount} ,
+            </if>
+            <if test="list!=null">
+                list = #{list},
+            </if>
+            <if test="foodType!=null">
+                foodType = #{foodType.id},
+            </if>
+            <if test="type!=null">
+                type = #{type.id} ,
+            </if>
+            <if test="number!=null">
+                number = #{number} ,
+            </if>
+
+        </trim>
+    </sql>
+    <!--组件需要以下方法-->
+    <insert id="save" parameterType="model.food.Food">
+        insert into t_food (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+        <if test="foodFormats!=null">
+            <foreach collection="foodFormats" item="item" index="index">
+                insert into t_foodFormat (`id`,`name`,`createDate`,`status`,`description`,`price`,`parent`)
+                values(
+                UUID(),#{item.name},#{createDate},#{item.status},#{item.description},#{item.price},#{id});
+            </foreach>
+        </if>
+    </insert>
+    <insert id="addFoodFormat" parameterType="model.food.FoodFormat">
+        insert into t_foodFormat (`id`,`name`,`createDate`,`status`,`description`,`price`,`parent`)
+        values(
+        #{id}, #{name},#{createDate},#{status},#{description},#{price},#{description});
+
+    </insert>
+    <delete id="deleteFoodFormat" parameterType="model.food.FoodFormat">
+        delete from t_foodFormat WHERE id=#{id};
+    </delete>
+    <delete id="delete" parameterType="model.food.Food">
+        delete from t_food<include refid="condition"/>;
+    </delete>
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from t_food
+        <where>
+            id in
+            <foreach collection="list" item="item" separator="," open="(" close=")">#{item,jdbcType=VARCHAR}</foreach>
+        </where>
+    </delete>
+    <!--修改规格-->
+    <update id="updateFoodFormat" parameterType="model.food.FoodFormat">
+        UPDATE t_foodFormat
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="name!=null">
+                `name`=#{name},
+            </if>
+            <if test="status!=null">
+                `status`=#{status},
+            </if>
+            <if test="description!=null">
+                `description`=#{description},
+            </if>
+            <if test="createDate!=null">
+                `createDate`=#{createDate},
+            </if>
+            <if test="price!=null">
+                `price`=#{price},
+            </if>
+        </trim>
+        where id=#{id}
+    </update>
+    <update id="update" parameterType="model.food.Food">
+        UPDATE t_food
+        <include refid="forUpdate"/>
+        WHERE (`id`=#{id} and `shop`=#{shop.id});
+        <if test="foodFormats!=null">
+            <foreach collection="foodFormats" item="item" index="index">
+                UPDATE t_foodFormat
+                set
+                <trim suffix="" suffixOverrides=",">
+                    <if test="name!=null">
+                        `name`=#{item.name},
+                    </if>
+                    <if test="status!=null">
+                        `status`=#{item.status},
+                    </if>
+                    <if test="description!=null">
+                        `description`=#{item.description},
+                    </if>
+                    <if test="createDate!=null">
+                        `createDate`=#{item.createDate},
+                    </if>
+                    <if test="price!=null">
+                        `price`=#{item.price},
+                    </if>
+                </trim>
+                where id=#{item.id} and parent=#{id}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="select" parameterType="java.util.Map" resultMap="resultMap">
+        select * from v_food<include refid="condition"/> order by list
+    </select>
+    <select id="selectFoodFormat" parameterType="java.util.Map" resultType="java.util.Map">
+        select * from t_foodFormat<include refid="conditionFoodFormat"/>;
+    </select>
+    <select id="selectOne" parameterType="model.shop.Shop" resultMap="resultMap">
+        select * from t_food<include refid="condition"/>;
+    </select>
+    <select id="fastFind" parameterType="java.util.Map" resultType="java.util.Map">
+        select id,name from t_food <include refid="condition"/> order by (list);
+    </select>
+    <select id="selectOneById" parameterType="java.lang.String" resultMap="resultMap">
+        select * from t_food where id=#{id};
+    </select>
+    <select id="selectAll" resultMap="resultMap">
+        select * from v_food order by (list)
+    </select>
+    <select id="findByPage" parameterType="java.util.Map" resultType="java.util.Map">
+        select * from t_food
+        <include refid="condition"/>
+        <if test="orderBy!=null">
+            order by (#{orderBy})
+        </if>
+        <if test="sort!=null">
+            ${sort}
+        </if>
+        limit #{start},#{end};
+    </select>
+    <select id="countTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select Count(id) from t_food <include refid="condition"/>;
+    </select>
+    <select id="selectTopX" parameterType="java.util.Map" resultMap="resultMap">
+        select * from t_food <include refid="condition"/> order by (#{orderBy}) desc limit 0,#{topX};
+    </select>
+    <select id="randomSelectTopX" parameterType="java.util.Map" resultMap="resultMap">
+      SELECT * FROM (
+        SELECT * ,ROUND(RAND()) AS newno FROM t_shop GROUP BY id
+      )AS t <include refid="condition"/> ORDER BY t.newno asc LIMIT #{topX}
+    </select>
+    <!--功能扩展-->
+    <!--查询当前食物的月销售数量       description中存放的是food的id值-->
+    <select id="findFoodMonthSaleNum" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM t_orderDetails where description=#{foodId} AND `status`='1' and DATE_SUB(CURDATE(), INTERVAL 30 DAY) &lt;= date(createDate)
+    </select>
+</mapper>

@@ -1,0 +1,19 @@
+package controller.delivery;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@RequestMapping("delivery")
+@Controller
+public class delivery {
+
+    @RequestMapping("/login")
+    public String deliveryIndex() {
+        return "delivery/login";
+    }
+
+    @RequestMapping("/new_account")
+    public String new_account() {
+        return "delivery/new_account";
+    }
+}

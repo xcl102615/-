@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.recruit.Recruit">
+
+    <resultMap id="BaseResultMap" type="model.recruit.Recruit">
+        <result column="id" property="id"/>
+    </resultMap>
+
+    <!--扩展 resultMap-->
+    <resultMap id="resultMap" type="model.recruit.Recruit" extends="BaseResultMap">
+        <result column="position" property="position"/>
+        <result column="duty" property="duty"/>
+        <result column="requirement" property="requirement"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+--         id,position,duty,requirement
+      *
+    </sql>
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="position != null">
+                position,
+            </if>
+            <if test="duty != null">
+                duty,
+            </if>
+            <if test="requirement != null">
+                requirement,
+            </if>
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="position != null">
+                #{position},
+            </if>
+            <if test="duty != null">
+                #{duty},
+            </if>
+            <if test="requirement != null">
+                #{requirement},
+            </if>
+        </trim>
+    </sql>
+    <!--涉及条件的统一配置，特殊需求在方法上改动-->
+    <sql id="condition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+                <!--
+                    根据name模糊查询
+                -->
+                <if test="position">
+                    position=#{position} and
+                </if>
+            </trim>
+        </where>
+    </sql>
+    <!--更新操作 统一配置-->
+    <sql id="forUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="position!=null">
+                position=#{position},
+            </if>
+            <if test="duty!=null">
+                duty=#{duty},
+            </if>
+            <if test="requirement!=null">
+                requirement=#{requirement},
+            </if>
+        </trim>
+    </sql>
+    <!--组件需要以下方法-->
+    <insert id="save" parameterType="model.recruit.Recruit">
+        insert into t_recruit (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+
+    </insert>
+
+    <delete id="delete" parameterType="model.recruit.Recruit">
+       delete from t_recruit WHERE `id`=#{id};
+    </delete>
+
+
+
+    <select id="select" parameterType="java.util.Map" resultMap="resultMap">
+        select id,position,duty,requirement from t_recruit<include refid="condition"/>;
+    </select>
+    <select id="selectAll" resultMap="resultMap">
+        select id,position,duty,requirement from t_recruit ;
+    </select>
+</mapper>

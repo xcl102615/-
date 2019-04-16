@@ -1,0 +1,131 @@
+package controller.shop.impl;
+
+import model.shop.Shop;
+import model.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+/***
+ * 用户控制层接口
+ */
+@RequestMapping(value = "shop")
+@RestController
+public class ShopController implements controller.shop.ShopController {
+
+    private Logger log = LoggerFactory.getLogger(ShopController.class);
+
+    @Autowired
+    private service.shop.impl.ShopServiceImpl bll;
+
+    /**
+     * 商铺新增
+     *
+     * @param shop
+     * @return
+     */
+    @PostMapping(value = "addShop")
+    public AjaxResult addShop(@RequestBody Shop shop) {
+        if (StringUtils.objIsNull(shop)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入商铺新增 addShop");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        shop.setId(StringUtils.getUUID());//创建id
+        shop.setCreateDate(new Date());//创建时间
+        shop.setUser(user);
+        return bll.save(shop);
+    }
+
+    /**
+     * 商铺查询
+     *
+     * @param shop
+     * @return
+     */
+    @PostMapping(value = "findShop")
+    public AjaxResult findShop(@RequestBody Shop shop) {
+        if (StringUtils.objIsNull(shop)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入商铺查找 findShop");
+        //设置查找条件
+        Map map = new HashMap();
+        map.put("id", shop.getId());
+        map.put("status", shop.getStatus());
+        return bll.select(map);
+    }
+
+    /**
+     * 商铺修改
+     *
+     * @param shop
+     * @return
+     */
+    @PostMapping(value = "updateShop")
+    public AjaxResult updateShop(@RequestBody Shop shop) {
+        if (StringUtils.objIsNull(shop)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+
+        log.info("进入商铺修改 updateShop");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        shop.setUser(user);
+        return bll.update(shop);
+    }
+
+    /**
+     * 商铺删除
+     *
+     * @param shop
+     * @return
+     */
+    @PostMapping(value = "delShop")
+    public AjaxResult delShop(@RequestBody Shop shop) {
+        if (StringUtils.objIsNull(shop)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入商铺删除 delShop");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        shop.setUser(user);
+        return bll.delete(shop);
+    }
+
+    /**
+     * 根据用户登录状态查询商铺信息
+     *
+     *
+     * @return
+     */
+    @PostMapping(value = "getShopByUser")
+    public AjaxResult getShopByUser() {
+        log.info("根据用户登录状态查询商铺信息 findShop");
+
+        Shop shop=bll.getShopByUser();
+        if(shop==null){
+            return AjaxResult.build("0","查询失败");
+        }
+        return AjaxResult.build("1","查找成功",shop);
+    }
+
+}

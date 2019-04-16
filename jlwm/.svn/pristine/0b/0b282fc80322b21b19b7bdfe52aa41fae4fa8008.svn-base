@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.wx.MessagePushDao">
+
+    <resultMap id="BaseResultMap" type="model.messagePush.MessageUserInfo">
+        <result column="id" property="id"/>
+        <result column="toUserName" property="toUserName"/>
+        <result column="msgType" property="msgType"/>
+        <result column="event" property="event"/>
+        <result column="nickname" property="nickname"/>
+        <result column="sex" property="sex"/>
+
+    </resultMap>
+    <insert id="save" parameterType="model.address.Address">
+        insert into t_address (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+
+    </insert>
+
+    <delete id="delete" parameterType="model.address.Address">
+       update t_address set canUse=false WHERE (`id`=#{id} and `user`=#{user.id});
+    </delete>
+
+    <select id="select" parameterType="java.util.Map" resultMap="resultMap">
+        select * from t_address<include refid="condition"/>;
+    </select>
+
+</mapper>

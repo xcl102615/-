@@ -1,0 +1,99 @@
+package controller.wxController;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import model.messagePush.MessageUserInfo;
+import model.order.Order;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import project.model.AjaxResult;
+import project.util.wx.config.Template;
+import service.wxService.MessagePushService;
+import service.order.impl.OrderServiceImpl;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * @author ls
+ * @version 创建时间：2019年1月23日 下午8:37:36
+ * @ClassName 类名称
+ * @Description 类描述
+ */
+
+@RequestMapping("/MessagePushController")
+@Controller
+public class MessagePushController {
+
+	@Autowired
+	private MessagePushService bllMessagePush;
+	
+	@Autowired
+	private OrderServiceImpl orderService;
+
+	/**
+	 * 获取UserInfo
+	 * 
+	 */
+
+	@RequestMapping(value = "/getUserInfoByOpenId")
+	@ResponseBody
+	public MessageUserInfo getUserInfoByOpenId(String AccessToken, String OpendId) {
+		return bllMessagePush.getUserInfoByOpenId(AccessToken, OpendId);
+	}
+
+	/**
+	 * 获取公众号所有关注者的openid
+	 * 
+	 */
+	@RequestMapping(value = "/getOpenIds")
+	@ResponseBody
+	public List<String> getOpenIds(String AccessToken) {
+		return bllMessagePush.getOpenIds(AccessToken);
+	}
+
+	/**
+	 * 根据微信id，secret获取access_token
+	 * 
+	 */
+
+	@RequestMapping(value = "/getAccessToken")
+	@ResponseBody
+	public String getAccessToken() {
+		return bllMessagePush.getAccessToken();
+	}
+
+	/**
+	 * 发送微信消息模板
+	 * 
+	 */
+	@RequestMapping(value = "/sendTemplate")
+	@ResponseBody
+	public AjaxResult sendTemplate(String id) {
+		if (id =="") {
+			return AjaxResult.build("0","id不能为空");
+		}
+		
+		Order order=(Order) orderService.selectOneById(id).getObj();
+		System.out.println(order);
+		 Map<String,String> hmap=new HashMap<String,String>();
+	      hmap.put("first","您有一个新的外卖订单！");
+	      hmap.put("keyword1",order.getId());
+	      hmap.put("keyword2",String.valueOf(order.getTotalPrice()));//订单总结
+	      hmap.put("keyword3",order.getUser().getName());//获取用户名称
+	      hmap.put("keyword4","已支付"); 
+	      hmap.put("remark","用户已付款，赶快接单吧");
+	      //oAr-B5xVQJ7POEi_lgNb9PFEB-i0
+		String str=bllMessagePush.sendTemplate("oAr-B56xapc1RN66zoJbbqznWih8", Template.toBePaid, hmap,id);
+		if(str.equals("ok")) {
+			return 	AjaxResult.build("1","已通知商家");
+		}
+		return AjaxResult.build("0","通知商家失败");
+	}
+
+}

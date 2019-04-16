@@ -1,0 +1,49 @@
+package model.shop;
+
+import project.model.BaseObject;
+
+import java.util.Date;
+
+
+public class ShopProfit extends BaseObject {
+   private String shopId;
+//   店铺
+    private String type;
+//    收入/支出
+    private Date finishTime;
+//    完成时间
+    private String orderId;
+//    收入时的订单编号
+
+    public String getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Date getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(Date finishTime) {
+        this.finishTime = finishTime;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+}

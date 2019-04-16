@@ -1,0 +1,77 @@
+package controller.protal;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import service.protal.ProtalService;
+
+import java.util.Map;
+
+@RestController
+public class ProtalController {
+    @Autowired
+    private ProtalService service;
+
+    /***
+     * 获取首页的相关信息
+     * @return
+     */
+    @RequestMapping("index")
+    public AjaxResult index(){
+        return service.getIndexInfo();
+    }
+
+    /***
+     * 通过平台的类型查找食品
+     * @param id
+     * @return
+     */
+    @RequestMapping("findByType")
+    public AjaxResult findByType(@RequestParam("id")String id){
+        return service.selectFoodsByType(id);
+    }
+
+    /***
+     * 通过名称模糊搜索食品
+     * @param name
+     * @return
+     */
+    @RequestMapping("findByName")
+    public AjaxResult findByName(@RequestParam("name")String name){
+        return service.selectFoodsByLike(name);
+    }
+
+    /***
+     *
+     * @param map page 第几页
+     *            pageSize 大小
+     *            orderBy 字段排序
+     *            sort 排序方式 desc asc
+     * @return
+     */
+    @RequestMapping("findByPage")
+    public AjaxResult findByPage(@RequestBody Map map){
+        return service.selectFoodByOrderBy(map);
+    }
+
+    /***
+     * 获取用户订单信息
+     * @return
+     */
+    @RequestMapping("getUserOrders")
+    public AjaxResult getUserOrder(){
+        return service.findUserOrder();
+    }
+
+    /***
+     * 获取用户的地址信息
+     * @return
+     */
+    @RequestMapping("getUserAddress")
+    public AjaxResult findUserAddress(){
+        return service.findUserAddress();
+    }
+}

@@ -1,0 +1,80 @@
+package service.protal;
+
+import model.carousel.Carousel;
+import model.shop.Shop;
+import model.type.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.model.AjaxResult;
+import service.carousel.impl.CarouselServiceImpl;
+import service.food.impl.FoodServiceImpl;
+import service.shop.impl.ShopServiceImpl;
+import service.type.impl.TypeServiceImpl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class ProtalService {
+    private Logger log = LoggerFactory.getLogger(ProtalService.class);
+
+    @Autowired
+    private CarouselServiceImpl carouselService;
+    @Autowired
+    private TypeServiceImpl typeService;
+    @Autowired
+    private ShopServiceImpl shopService;
+    @Autowired
+    private FoodServiceImpl foodService;
+    public AjaxResult getIndexInfo(){
+        log.info("获取首页数据信息.");
+        Map rs=new HashMap();
+        List<Type> types= (List<Type>) typeService.selectAll().getObj();
+//      平台的食品类型 如 主食 甜点 ..
+        rs.put("types",types);
+        Map param=new HashMap();
+
+        param.put("status","1");
+//        状态 1 表示启用
+        List<Carousel> carousels= (List<Carousel>) carouselService.select(param).getObj();
+//        查询所有启用的轮播图
+        rs.put("carousels",carousels);
+        param.clear();
+        param.put("orderBy","minFree");
+//         最低消费
+        param.put("isOpen","1");
+        param.put("topX",20);
+//        topX 前几条数据 使用方法 没这个参数会报错
+//         是否在营业
+        List<Shop>shopList= (List<Shop>) shopService.selectTopX(param).getObj();
+        rs.put("shopList",shopList);
+        return AjaxResult.build("1","系统响应了你的请求",rs);
+    }
+
+    /***
+     * 根据 平台商品类别进行查询
+     * @param typeId
+     * @return
+     */
+    public AjaxResult selectFoodsByType(String typeId){
+        log.info("通过类别查询食品信息");
+        Map param=new HashMap();
+        param.put("type",typeId);
+        return foodService.select(param);
+    }
+
+    /***
+     * 通过 食品的名字进行搜索
+     * @param foodName
+     * @return
+     */
+    public AjaxResult selectFoodsByLike(String foodName){
+        log.info("通过类别查询食品信息");
+        Map param=new HashMap();
+        param.put("name",foodName);
+        return foodService.select(param);
+    }
+}

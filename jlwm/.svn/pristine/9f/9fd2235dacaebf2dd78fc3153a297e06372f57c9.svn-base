@@ -1,0 +1,212 @@
+package controller.address.impl;
+
+
+import model.address.Address;
+import model.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/***
+ * 用户控制层接口
+ */
+@RequestMapping(value = "address")
+@RestController
+public class AddressController implements controller.address.AddressController {
+
+    private Logger log = LoggerFactory.getLogger(AddressController.class);
+
+    @Autowired
+    private service.address.impl.AddressServiceImpl bll;
+
+    /**
+     * 收获地址新增
+     *
+     * @param address
+     * @return
+     */
+    @PostMapping(value = "addAddress")
+    public AjaxResult addAddress(@RequestBody Address address) {
+        if (StringUtils.objIsNull(address)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+
+        log.info("进入收获地址新增 addAddress");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        Map map1=new HashMap();
+        map1.put("user",user);
+        map1.put("canUse",true);
+        List list=(List) bll.select(map1).getObj();
+        if(list.size()==0){//判断当前有没有地址，没有其他地址第一条未默认地址
+            address.setId(StringUtils.getUUID());//创建id
+            address.setDefault(true);
+            address.setUser(user);
+            address.setCreateDate(new Date());
+            return bll.save(address);
+        }
+        if (address.getDefault() == true) {
+            Address addressList = bll.findDefaultAddess(user.getId());
+            if (addressList != null) {
+                Map map = new HashMap();
+                String id = addressList.getId();
+                map.put("id", id);
+                map.put("user", user);
+                map.put("isDefault", false);
+                int num=Integer.parseInt(bll.update(map).getCode());
+                if(num<0){
+                    return AjaxResult.build("0","查询到已存在默认地址但修改失败");
+                }
+                address.setId(StringUtils.getUUID());//创建id
+                address.setCreateDate(new Date());//创建时间
+                address.setUser(user);
+                return bll.save(address);
+            }
+            //之前没有已经设置了默认地址数据
+            address.setId(StringUtils.getUUID());//创建id
+            address.setCreateDate(new Date());//创建时间
+            address.setUser(user);
+            return bll.save(address);
+
+        }
+        address.setId(StringUtils.getUUID());//创建id
+        address.setCreateDate(new Date());//创建时间
+        address.setUser(user);
+        return bll.save(address);
+    }
+
+    /**
+     * 收获地址查询
+     *
+     * @return
+     */
+    @PostMapping(value = "findAddress")
+    public AjaxResult findAddress() {
+        log.info("进入收获地址查找 findAddress");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        //设置查找条件
+        Map map = new HashMap();
+        map.put("user", user);
+        map.put("canUse",true);
+        return bll.select(map);
+    }
+
+    /**
+     * 收获地址修改
+     *
+     * @param address
+     * @return
+     */
+    @PostMapping(value = "updateAddress")
+    public AjaxResult updateAddress(@RequestBody Address address) {
+        if (StringUtils.objIsNull(address)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+
+        log.info("进入收获地址修改 updateAddress");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+          Address address1= (Address) bll.selectOneById(address.getId()).getObj();
+         if(address1!=null&&address1.getDefault()==true){
+             if(address.getDefault()==false){
+                 return AjaxResult.build("0","默认地址不能修改") ;
+             }
+             address.setUser(user);
+             return bll.update(address);
+         }
+         //当前不是默认地址
+        if(address.getDefault()==true){
+            Address addressList = bll.findDefaultAddess(user.getId());
+            if (addressList != null) {
+                Map map = new HashMap();
+                String id = addressList.getId();
+                map.put("id", id);
+                map.put("user", user);
+                map.put("isDefault", false);
+               int num=Integer.parseInt(bll.update(map).getCode()) ;
+               if(num<0){
+                   return AjaxResult.build("0","修改失败！");
+               }
+                address.setUser(user);
+                return bll.update(address);
+            }
+            address.setUser(user);
+            return bll.update(address);
+        }
+        address.setUser(user);
+        return bll.update(address);
+    }
+
+    /**
+     * 收获地址删除
+     *
+     * @param address
+     * @return
+     */
+    @PostMapping(value = "delAddress")
+    public AjaxResult delAddress(@RequestBody Address address) {
+        if (StringUtils.objIsNull(address)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入收获地址删除 delAddress");
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        address.setUser(user);
+        return bll.delete(address);
+    }
+
+    /**
+     * 收获地址查询
+     *
+     * @param address
+     * @return
+     */
+    @PostMapping(value = "findAddressById")
+    public AjaxResult findAddressById(@RequestBody Address address) {
+        if (StringUtils.objIsNull(address)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入收获地址查找 findAddressById");
+        return bll.selectOneById(address.getId());
+    }
+
+    /**
+     * 默认收货地址查询
+     *
+     * @return
+     */
+    @PostMapping(value = "findDefaultAddress")
+    public AjaxResult findDefaultAddress() {
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        log.info("默认收货地址查询 findDefaultAddress");
+       Address address= bll.findDefaultAddess(user.getId());
+       if(address==null){
+           return AjaxResult.build("0","没有默认地址");
+       }
+        return AjaxResult.build("1","已查询到默认地址",address);
+    }
+}

@@ -1,0 +1,17 @@
+package dao.user;
+
+import model.user.User;
+import project.dao.BaseDao;
+
+import java.util.Map;
+
+public interface UserMapper extends BaseDao {
+
+    int updatePwd(User user);//密码修改
+
+    int upPwdByPhone(User user);//通过验证码密码修改
+
+    int addRole(Map map);//给用户新增角色
+    User loginByPhone(Map map);
+    int delRole(Map map);//删除用户角色
+}

@@ -1,0 +1,36 @@
+package model.messagePush;
+
+/**
+ * @author ls
+ * @version 创建时间：2019年1月24日 下午4:14:47
+ * @ClassName UserInfo
+ * @Description 关注公众号的用户信息
+ */
+public class MessageUserInfo {
+
+	private String openid;// 订阅
+
+	private String unionid;// 统一标识
+
+	public String getUnionid() {
+		return unionid;
+	}
+
+	public void setUnionid(String unionid) {
+		this.unionid = unionid;
+	}
+
+	public String getOpenid() {
+		return openid;
+	}
+
+	public void setOpenid(String openid) {
+		this.openid = openid;
+	}
+
+	@Override
+	public String toString() {
+		return "UserInfo [openid=" + openid + ", unionid=" + unionid + "]";
+	}
+
+}

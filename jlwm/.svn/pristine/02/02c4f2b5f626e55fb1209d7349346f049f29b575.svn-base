@@ -1,0 +1,119 @@
+package controller.food.impl;
+
+import controller.food.FoodController;
+import model.food.Food;
+import model.foodType.FoodType;
+import model.shop.Shop;
+import model.type.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import project.util.StringUtils;
+import service.food.impl.FoodServiceImpl;
+import service.food.impl.FoodTypeServiceImpl;
+import service.type.impl.TypeServiceImpl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RequestMapping("food")
+@RestController
+public class FoodControllerImpl implements FoodController {
+    private Logger log = LoggerFactory.getLogger(FoodControllerImpl.class);
+    @Autowired
+    private FoodServiceImpl bll;
+    @Autowired
+    private FoodTypeServiceImpl foodTypeService;
+    @Autowired
+    private TypeServiceImpl typeService;
+
+    /**
+     * 添加商品
+     *
+     * @param food
+     * @return
+     */
+    @PostMapping(value = "/addFood")
+    public AjaxResult addFood(@RequestBody Food food) {
+        if (StringUtils.objIsNull(food)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        log.info("进入商品新增方法 addProduct()");
+        food.setId(StringUtils.getUUID());
+        food.setCreateDate(new Date());
+        return bll.save(food);
+    }
+
+    /**
+     * 删除商品
+     *
+     * @param food（id 、shop.id）
+     * @return
+     */
+    @PostMapping("/deleteFood")
+    public AjaxResult deleteFood(@RequestBody Food food) {
+        if (StringUtils.objIsNull(food)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        log.info("进入商品删除方法 addProduct()");
+        return bll.delete(food);
+    }
+
+    /**
+     * 修改商品
+     *
+     * @param food
+     * @return
+     */
+    @PostMapping("/updateFood")
+    public AjaxResult updateFood(@RequestBody Food food) {
+        if (StringUtils.objIsNull(food)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        log.info("进入商品修改方法 updateFood()");
+        return bll.update(food);
+
+    }
+
+    @PostMapping("/findFood")
+    public AjaxResult findFood(@RequestBody Map<String, Object> map) {
+        if (StringUtils.objIsNull(map)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        log.info("进入商品查找方法 updateFood()");
+        return bll.select(map);
+    }
+
+    /**
+     * 商户版 添加食品 查出当前店铺的所有分类 以及 平台大分类
+     *
+     * @param shop
+     * @return
+     */
+    @PostMapping("findAllType")
+    public AjaxResult findAllType(@RequestBody Shop shop) {
+        if (StringUtils.objIsNull(shop)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        Map shopId = new HashMap();
+        shopId.put("shopId", shop.getId());
+        List<FoodType> listFoodType = (List<FoodType>) foodTypeService.select(shopId).getObj();
+        List<Type> listFood = (List<Type>) typeService.selectAll().getObj();
+        Map map = new HashMap();
+        if (listFoodType.size() > 0) {
+            map.put("FoodType", listFoodType);
+        }
+        if (listFood.size() > 0) {
+            map.put("Type", listFood);
+        }
+        return AjaxResult.build("1", "系统已响应您的请求！", map);
+    }
+
+}

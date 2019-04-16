@@ -1,0 +1,25 @@
+body{
+    background-color: whitesmoke;
+}
+
+.page-header h1{
+    text-align: center;
+    letter-spacing: 2px;
+    font-family: 华文行楷;
+}
+.row{
+    margin: 15px 15px;
+}
+.thumbnail{
+    border-radius: 15px;
+}
+.thumbnail .caption{
+    text-align: center;
+}
+.caption h4{
+    color: #00bbee;
+}
+.thumbnail:hover{
+ box-shadow: darkgray 10px 10px;
+}
+

@@ -1,0 +1,10 @@
+package dao.shop;
+
+import model.shop.Shop;
+import project.dao.BaseDao;
+
+import java.util.List;
+
+public interface ShopMapper extends BaseDao {
+    List<Shop>findShopByType(String typeId);
+}

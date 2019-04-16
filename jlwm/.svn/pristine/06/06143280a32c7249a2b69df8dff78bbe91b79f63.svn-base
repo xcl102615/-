@@ -1,0 +1,90 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+<%@ include file="header/init.jsp" %>
+
+<html>
+<head>
+    <style>
+        .bigButton:hover{
+           background-color: #a6a6a6;
+        }
+        .bigButton img{
+            width: 60px;
+            height:50px;
+            cursor:pointer;
+        }
+        .bigButton img:hover{
+             border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="easyui-layout">
+<div data-options="region:'north',border:false"
+     style="height:60px; line-height:60px; overflow:hidden;background-color:rgb(0,129,194);padding-left: 10px;padding-right: 10px;">
+    <!--<iframe src="top.jsp" width="100%" height="99%;" frameborder="0"> </iframe> -->
+    <span style="color:white;font-size: 25px;">系统</span>
+    <!-- 顶部状态栏-->
+    <div style="float:right; text-align:right; color:white">
+        <span id="sUser" style="color:white">欢迎【${user.name}】访问系统</span>&nbsp;&nbsp;
+        <a href="javascript:void(0)" class="eayui-linkbutton" id="btnLogout"><span style="color:white;">退出系统</span></a>
+
+    </div>
+</div>
+<div data-options="region:'west',split:false,collapsible:true,title:'导航菜单'"
+     style="width:200px;padding:1px;text-align: center; " id="dMenu">
+
+    <div class="easyui-accordion" style="width:100%;">
+        <div title="用户" style="overflow:auto;padding:10px; text-align: center;">
+                <div class="bigButton">
+                    <img src="images/college.png" title="用户管理" type="fun" doUrl="admin/user/goUserManage">
+                    <p><h3>用户管理</h3></p>
+                </div>
+        </div>
+    </div>
+
+</div>
+<div data-options="region:'south',border:false,height:30"
+     style="padding:6px 0;text-align: center;color:white;background-color:rgb(0,129,194)">
+    Copy Right &copy
+</div>
+<div data-options="region:'center'" style="z-index:-1;">
+    <div class="easyui-tabs" id="tWork"
+         data-options="fit:true,border:false,plain:true">
+        <div title="首页">
+            <iframe src="home.jsp" width="100%" height="99%;" frameborder="0" wmode="window"></iframe>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function addTab(title, url) {
+        if ($('#tWork').tabs('exists', title)) {
+            $('#tWork').tabs('select', title);
+        } else {
+            var content = '<iframe scrolling="auto" frameborder="0"  src="'+ url + '" style="width:100%;height:98%;"></iframe>';
+            $('#tWork').tabs('add', {
+                title : title,
+                content : content,
+                closable : true,
+                fit:true
+            });
+        }
+    }
+
+    $(function() {
+        $("img[type=fun]").click(function() {
+            addTab($(this).attr("title"), "<%=basePath%>"+"/"+$(this).attr("doUrl"));
+        });
+        $("#btnLogout").click(function () {
+
+        });
+    });
+</script>
+<script src="<%=basePath%>/script/business/Project.js"></script>
+<script>
+    var obj=new EasyUIUtils("<%=basePath%>");
+    obj.doDataAll("<%=basePath%>/admin/user/selectAll",null,function (data) {
+        console.info(data);
+    })
+</script>
+</body>
+</html>

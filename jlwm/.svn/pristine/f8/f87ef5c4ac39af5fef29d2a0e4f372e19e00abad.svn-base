@@ -1,0 +1,44 @@
+package controller.printer;
+
+import model.printer.Printer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import service.printer.PrinterService;
+
+import java.util.Map;
+
+@RequestMapping(value = "printer")
+@RestController
+public class PrinterController {
+
+    @Autowired
+    private PrinterService service;
+
+    @RequestMapping(value = "save")
+    public AjaxResult save(@RequestBody Printer printer){
+        return service.save(printer);
+    }
+
+
+    @RequestMapping(value = "selectAll")
+    public AjaxResult selectAll(){
+        return service.selectAll();
+    }
+
+    @RequestMapping(value = "select")
+    public AjaxResult select(Map map){
+        return service.select(map);
+    }
+
+    @RequestMapping(value = "delete")
+    public AjaxResult delete(@RequestBody Printer printer){
+        return service.delete(printer);
+    }
+    @RequestMapping(value = "update")
+    public AjaxResult update(@RequestBody Printer printer){
+        return service.update(printer);
+    }
+}

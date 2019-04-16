@@ -1,0 +1,9 @@
+package test;
+
+import project.util.LocationUtil;
+public class Test {
+
+        public static void main(String []args){
+            System.out.println(LocationUtil.getDistance(113.950579,27.150503 ,113.961846,27.134073));
+        }
+}

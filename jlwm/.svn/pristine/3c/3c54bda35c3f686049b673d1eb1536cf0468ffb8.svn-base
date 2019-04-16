@@ -1,0 +1,86 @@
+package controller.admin;
+
+import org.json.JSONArray;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import service.admin.AdminService;
+import service.user.impl.UserServiceImpl;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RequestMapping(value = "admin/user")
+@RestController
+public class AdminController {
+    @Autowired
+    private AdminService service;
+
+//    @RequestMapping(value = "goUserManage")
+//    public String goUserManage(){
+//        return "user/UserManage";
+//    }
+
+    /***
+     * 获取所有的订单
+     * @return
+     */
+    @RequestMapping("getAllOrders")
+    public AjaxResult getAllOrders(){
+        return service.getAllOrders();
+    }
+
+    /***
+     * 获取所有骑手
+     * @return
+     */
+    @RequestMapping("getAllDelivery")
+    public AjaxResult getAllDelivery(){
+        return service.getAllDelivery();
+    }
+
+    /***
+     * 获取所有的店主
+     * @return
+     */
+    @RequestMapping("getAllShopUser")
+    public AjaxResult getAllShopUser(){
+        return service.getAllShopUser();
+    }
+
+    @RequestMapping("getOrdersByStatus")
+    public AjaxResult getOrdersByStatus(){
+        Map param=new HashMap();
+        return service.getOrdersByStatus(param);
+    }
+
+    /***
+     * 获取食品
+     * @return
+     */
+    @RequestMapping("getAllFood")
+    public AjaxResult getAllFood(){
+        return service.getAllFood();
+    }
+
+    /**
+     * 获取平台类别
+     * @return
+     */
+    @RequestMapping("getAllType")
+    public AjaxResult getAllType(){
+        return service.getAllType();
+    }
+
+    /***
+     * 获取轮播图
+     * @return
+     */
+    @RequestMapping("getAllCarousel")
+    public AjaxResult getAllCarousel(){
+        return service.getAllCarousel();
+    }
+}

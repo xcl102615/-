@@ -1,0 +1,83 @@
+package controller.ApplicationInfoController.impl;
+
+import com.sun.org.apache.bcel.internal.generic.NEW;
+import model.recruit.ApplicationInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import project.model.AjaxResult;
+import project.util.StringUtils;
+import java.util.List;
+import java.util.Map;
+
+/***
+ * 用户控制层接口
+ */
+@RequestMapping(value = "applicationInfo")
+@RestController
+public class ApplicationInfoController implements controller.ApplicationInfoController.ApplicationInfoController {
+    private Logger log = LoggerFactory.getLogger(ApplicationInfoController.class);
+    @Autowired
+    private service.applicationInfo.impl.applicationInfoServiceImpl bll;
+    /**
+     * 应聘者信息新增
+     *
+     * @param applicationInfo
+     * @return
+     */
+    @GetMapping(value = "addApplicationInfo")
+    public AjaxResult addApplicationInfo(@RequestBody ApplicationInfo applicationInfo) {
+        if (StringUtils.objIsNull(applicationInfo)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        applicationInfo.setId(StringUtils.getUUID());
+        if(applicationInfo==null||applicationInfo.getRecruit().getId()==null){
+            return AjaxResult.build("0","数据不合格！");
+        }
+        return bll.save(applicationInfo);
+    }
+
+    /**
+     * 应聘者信息查询
+     *
+     * @param map
+     * @return
+     */
+    @GetMapping(value = "lookApplicationInfo")
+    public AjaxResult lookApplicationInfo(@RequestBody Map map) {
+        if (StringUtils.objIsNull(map)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        return bll.select(map);
+    }
+
+    /**
+     * 应聘者信息全查询
+     *
+     * @return
+     */
+    @GetMapping(value = "lookAllApplicationInfo")
+    public AjaxResult lookAllApplicationInfo() {
+        List<ApplicationInfo> allInfo= (List<ApplicationInfo>) bll.selectAll().getObj();
+        if(allInfo==null&&allInfo.size()<=0){
+            return AjaxResult.build("0","无请求数据");
+        }
+        return AjaxResult.build("1","查询到全部数据",allInfo);
+    }
+
+    /**
+     * 应聘者信息全查询
+     * @param applicationInfo
+     * @return
+     */
+    @GetMapping(value = "delApplicationInfo")
+    public AjaxResult delApplicationInfo(@RequestBody ApplicationInfo applicationInfo) {
+        if (StringUtils.objIsNull(applicationInfo)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        log.info("进入应聘者信息删除 applicationInfo");
+        return bll.delete(applicationInfo);
+    }
+
+}

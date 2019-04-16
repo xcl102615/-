@@ -1,0 +1,191 @@
+package service.admin;
+import model.deliveryOrder.DeliveryMoney;
+import model.shop.ShopProfit;
+import model.user.Role;
+import model.user.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.model.AjaxResult;
+import service.carousel.impl.CarouselServiceImpl;
+import service.deliveryOrder.impl.DeliveryMoneyServiceImpl;
+import service.deliveryOrder.impl.DeliveryOrderServiceImpl;
+import service.food.impl.FoodServiceImpl;
+import service.order.impl.OrderServiceImpl;
+import service.shop.impl.ShopProfitSerciceImpl;
+import service.shop.impl.ShopServiceImpl;
+import service.type.impl.TypeServiceImpl;
+import service.user.impl.UserServiceImpl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class AdminService {
+    @Autowired
+    private UserServiceImpl userService;
+    @Autowired
+    private ShopServiceImpl shopService;
+    @Autowired
+    private OrderServiceImpl orderService;
+    @Autowired
+    private FoodServiceImpl foodService;
+    @Autowired
+    private TypeServiceImpl typeService;
+    @Autowired
+    private CarouselServiceImpl carouselService;
+    @Autowired
+    private ShopProfitSerciceImpl shopProfitSercice;
+    @Autowired
+    private DeliveryOrderServiceImpl deliveryOrderService;
+    @Autowired
+    private DeliveryMoneyServiceImpl deliveryMoneyService;
+    /***
+     * 获取所有的店家
+     * @return
+     */
+    public AjaxResult getAllShopUser(){
+        List<User>users= (List<User>) userService.selectAll().getObj();
+        List<User>shops=new ArrayList<>();
+        for (User t:users
+        ) {
+            for (Role role:t.getRoles()
+            ) {
+                if (role.getName().equals("shop")){
+                    shops.add(t);
+                }
+            }
+        }
+        return AjaxResult.build("1","系统响应了你的请求",shops);
+    }
+
+    /***
+     * 获取所有的骑手
+     * @return
+     */
+    public AjaxResult getAllDelivery(){
+        List<User>users= (List<User>) userService.selectAll().getObj();
+        List<User>delivery=new ArrayList<>();
+        for (User t:users
+             ) {
+            for (Role role:t.getRoles()
+                 ) {
+                if (role.getName().equals("delivery")){
+                    delivery.add(t);
+                }
+            }
+        }
+        return AjaxResult.build("1","系统响应了你的请求",delivery);
+    }
+
+    /***
+     * 获取所有的订单
+     * @return
+     */
+    public AjaxResult getAllOrders(){
+        return orderService.selectAll();
+    }
+
+    public AjaxResult getOrdersByStatus(Map map){
+        return null;
+    }
+
+    /***
+     * 获取所有的食品
+     * @return
+     */
+    public AjaxResult getAllFood(){
+        return foodService.selectAll();
+    }
+
+    /***
+     * 获取所有的平台类别
+     * @return
+     */
+    public AjaxResult getAllType(){
+        return typeService.selectAll();
+    }
+
+    /***
+     * 获取启用的轮播图
+     * @return
+     */
+    public AjaxResult getAllCarousel(){
+        return carouselService.selectAll();
+    }
+
+    /***
+     * 确认骑手提现请求
+     * @param deliveryMoney
+     * @return
+     */
+    public AjaxResult updateDeliveryMoney(DeliveryMoney deliveryMoney){
+        deliveryMoney= (DeliveryMoney) deliveryOrderService.selectOne(deliveryMoney).getObj();
+        if (deliveryMoney.getStatus().equals("已提现")){
+            return AjaxResult.build("-1","无效的提现请求");
+        }
+        deliveryMoney.setStatus("已提现");
+       return deliveryOrderService.update(deliveryMoney);
+    }
+
+    /***
+     * 确认店铺提现请求
+     * @param shopProfit
+     * @return
+     */
+    public AjaxResult updateShopProfit(ShopProfit shopProfit){
+        shopProfit= (ShopProfit) shopProfitSercice.selectOne(shopProfit).getObj();
+        if (shopProfit.getType()==1||shopProfit.getStatus().equals("已提现")){
+            return AjaxResult.build("-1","无效的提现请求");
+        }
+        shopProfit.setStatus("已提现");
+        return shopProfitSercice.update(shopProfit);
+    }
+
+    /***
+     * 获取所有的店铺信息
+     * @return
+     */
+    public AjaxResult getAllShop(){
+        return shopService.selectAll();
+    }
+
+    /***
+     * 查找店家的提现申请
+     * @return
+     */
+    public  AjaxResult getAllShopApply(){
+        Map param=new HashMap();
+        param.put("type",2);
+        param.put("status","提现中");
+        return shopProfitSercice.select(param);
+    }
+
+    /***
+     * 查找骑手的提现申请
+     * @return
+     */
+    public AjaxResult getAllDeliveryApply(){
+        Map param=new HashMap();
+        param.put("type","收入");
+        param.put("status","提现中");
+        return deliveryOrderService.select(param);
+    }
+
+    /***
+     * 获取所有的骑手流水
+     * @return
+     */
+    public AjaxResult getDeliveryMoney(){
+        return deliveryMoneyService.selectAll();
+    }
+
+    /***
+     * 获取所有的店家流水
+     * @return
+     */
+    public AjaxResult findAllShopProfit(){
+        return shopProfitSercice.selectAll();
+    }
+}

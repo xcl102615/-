@@ -1,0 +1,97 @@
+package controller.wxController;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import model.messagePush.MessageUserInfo;
+import model.order.Order;
+import model.order.OrderDetails;
+import model.shop.Shop;
+import model.user.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import project.model.AjaxResult;
+import project.util.StringUtils;
+import project.util.wx.config.Template;
+import service.shop.impl.ShopServiceImpl;
+import service.user.impl.UserServiceImpl;
+import service.wxService.MessagePushService;
+import service.order.impl.OrderServiceImpl;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * @author ls
+ * @version 创建时间：2019年1月23日 下午8:37:36
+ * @ClassName 类名称
+ * @Description 类描述
+ */
+
+@RequestMapping("/MessagePushController")
+@Controller
+public class MessagePushController {
+
+    @Autowired
+    private MessagePushService bllMessagePush;
+
+    @Autowired
+    private OrderServiceImpl orderService;
+    @Autowired
+    private ShopServiceImpl shopService;
+    @Autowired
+    private UserServiceImpl userService;
+
+    /**
+     * 获取UserInfo
+     */
+
+    @RequestMapping(value = "/getUserInfoByOpenId")
+    @ResponseBody
+    public MessageUserInfo getUserInfoByOpenId(String AccessToken, String OpendId) {
+        return bllMessagePush.getUserInfoByOpenId(AccessToken, OpendId);
+    }
+
+    /**
+     * 获取公众号所有关注者的openid
+     */
+    @RequestMapping(value = "/getOpenIds")
+    @ResponseBody
+    public List<String> getOpenIds(String AccessToken) {
+        return bllMessagePush.getOpenIds(AccessToken);
+    }
+
+    /**
+     * 根据微信id，secret获取access_token
+     */
+
+    @RequestMapping(value = "/getAccessToken")
+    @ResponseBody
+    public String getAccessToken() {
+        return bllMessagePush.getAccessToken();
+    }
+
+    /**
+     * 发送微信消息模板
+     */
+    @RequestMapping(value = "/sendTemplate")
+    @ResponseBody
+    public AjaxResult sendTemplate(String id) {
+        if (id == "") {
+            return AjaxResult.build("0", "id不能为空");
+        }
+       return bllMessagePush.sendTemplateBll(id);
+
+    }
+
+    public static void main(String[] args) {
+        Double d1=10.01d;
+        Double d2=10d;
+        System.out.println(d1-d2);
+
+    }
+}

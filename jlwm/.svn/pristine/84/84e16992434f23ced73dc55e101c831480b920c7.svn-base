@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.food.FoodType">
+
+    <resultMap id="BaseResultMap" type="model.foodType.FoodType">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="createDate" property="createDate"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+    </resultMap>
+
+    <!--扩展 resultMap-->
+    <resultMap id="resultMap" type="model.foodType.FoodType" extends="BaseResultMap">
+        <result column="typeId" property="typeId"/>
+        <result column="shopId" property="shopId"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+--         id,name,createDate,status,description,password
+      *
+    </sql>
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="createDate != null">
+                createDate,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+
+            <if test="typeId != null">
+                typeId,
+            </if>
+
+            <if test="shopId != null">
+                shopId,
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="createDate != null">
+                #{createDate},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+
+            <if test="typeId != null">
+                #{typeId},
+            </if>
+            <if test="shopId != null">
+                #{shopId},
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsItemsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="item.id != null">
+                #{item.id},
+            </if>
+            <if test="item.name != null">
+                #{item.name},
+            </if>
+            <if test="item.createDate != null">
+                #{item.createDate},
+            </if>
+            <if test="item.status != null">
+                #{item.status},
+            </if>
+            <if test="item.description != null">
+                #{item.description},
+            </if>
+
+            <if test="item.typeId != null">
+                #{item.typeId},
+            </if>
+            <if test="item.shopId != null">
+                #{item.shopId},
+            </if>
+
+        </trim>
+    </sql>
+    <!--涉及条件的统一配置，特殊需求在方法上改动-->
+    <sql id="condition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+                <if test="shopId!=null">
+                    shopId = #{shopId} and
+                </if>
+                <!--
+                    根据name模糊查询
+                -->
+            </trim>
+        </where>
+    </sql>
+    <!--更新操作 统一配置-->
+    <sql id="forUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="name!=null">
+                `name`=#{name},
+            </if>
+            <if test="status!=null">
+                `status`=#{status},
+            </if>
+            <if test="description!=null">
+                `description`=#{description},
+            </if>
+            <if test="createDate!=null">
+                `createDate`=#{createDate},
+            </if>
+            <if test="typeId!=null">
+                typeId = #{typeId},
+            </if>
+            <if test="shopId!=null">
+                shopId = #{shopId} ,
+            </if>
+
+        </trim>
+    </sql>
+    <!--组件需要以下方法-->
+    <insert id="save" parameterType="model.foodType.FoodType">
+        insert into t_foodType (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+    </insert>
+
+    <delete id="delete" parameterType="model.foodType.FoodType">
+        delete from t_foodType<include refid="condition"/>;
+    </delete>
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from t_foodType
+        <where>
+            id in
+            <foreach collection="list" item="item" separator="," open="(" close=")">#{item,jdbcType=VARCHAR}</foreach>
+        </where>
+    </delete>
+
+    <update id="update" parameterType="model.foodType.FoodType">
+        UPDATE t_foodType
+        <include refid="forUpdate"/>
+        WHERE (`id`=#{id} and `shopId`=#{shopId});
+    </update>
+
+    <select id="select" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select * from t_foodType<include refid="condition"/>;
+    </select>
+    <select id="selectOne" parameterType="model.foodType.FoodType" resultMap="BaseResultMap">
+        select * from t_foodType<include refid="condition"/>;
+    </select>
+    <select id="fastFind" parameterType="java.util.Map" resultType="java.util.Map">
+        select id,name from t_foodType <include refid="condition"/>;
+    </select>
+    <select id="selectOneById" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from t_foodType where id=#{id};
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select * from t_foodType ;
+    </select>
+    <select id="findByPage" parameterType="java.util.Map" resultType="java.util.Map">
+        select * from t_foodType
+        <include refid="condition"/>
+        limit #{start},#{end};
+    </select>
+    <select id="countTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select Count(id) from t_foodType <include refid="condition"/>;
+    </select>
+    <select id="selectTopX" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select * from t_foodType <include refid="condition"/> order by (#{orderBy}) desc limit 0,#{topX};
+    </select>
+    <select id="randomSelectTopX" parameterType="java.util.Map" resultMap="BaseResultMap">
+      SELECT * FROM (
+        SELECT * ,ROUND(RAND()) AS newno FROM t_shop GROUP BY id
+      )AS t <include refid="condition"/> ORDER BY t.newno asc LIMIT #{topX}
+    </select>
+    <!--功能扩展-->
+</mapper>

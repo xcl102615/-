@@ -1,0 +1,18 @@
+package project.util.wx.config;
+
+/**
+* @author ls
+* @version 创建时间：2019年1月24日 下午7:05:57
+* @ClassName Template
+* @Description 消息模板类
+*/
+public class Template {
+
+	public static final String neworder="Bp_3C6puCoQNv-kPsUJEi5T9mVsHqzED00x55w6dILM";//新订单
+	
+	public static final String SuccessOrders="uKx2bpFud5LMKrYCRE_a4VE-hQ7fB2DtqBxr_CtCC18";//订单支付成功
+	
+	public static final String toBePaid="3Lq2wIRvT4SDzz9i8m0TlXaPvdvoENvD5rCVdSDoeOQ";//订单待支付
+	
+
+}

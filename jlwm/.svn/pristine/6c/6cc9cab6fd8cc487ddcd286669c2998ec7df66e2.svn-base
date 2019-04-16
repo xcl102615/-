@@ -1,0 +1,38 @@
+package model.order;
+
+import project.model.BaseObject;
+
+/****
+ * 订单详情
+ */
+public class OrderDetails extends BaseObject {
+    private String foodName;
+    //    食品名称
+    private int num;
+    //    数量
+    private double price;
+    //总价格
+    public String getFoodName() {
+        return foodName;
+    }
+
+    public void setFoodName(String foodName) {
+        this.foodName = foodName;
+    }
+
+    public int getNum() {
+        return num;
+    }
+
+    public void setNum(int num) {
+        this.num = num;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+}

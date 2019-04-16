@@ -1,0 +1,11 @@
+package dao.wx;
+
+import model.messagePush.MessageUserInfo;
+
+public interface MessagePushDao {
+    int addUser(MessageUserInfo messageUserInfo);
+
+    int delUser(MessageUserInfo messageUserInfo);
+
+    MessageUserInfo select(String unionid);
+}

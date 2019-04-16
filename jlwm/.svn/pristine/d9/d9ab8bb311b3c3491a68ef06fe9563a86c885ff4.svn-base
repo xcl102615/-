@@ -1,0 +1,86 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="../../header/admin.jsp" %>
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    所有店铺查看
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>商户号</th>
+                                <th>店铺名称</th>
+                                <th>电话</th>
+                                <th>创建时间</th>
+                                <th>状态</th>
+                                <th>启用与禁用</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tbody">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        //遍历所有商户信息
+        doDataAll("<%=basePath%>/shop/findShop",{},function (data) {
+            if(data.code>0){
+                $.each(data.obj,function () {
+                    $("#tbody").append("  <tr>\n" +
+                        "                                <td>"+this.id+"</td>\n" +
+                        "                                <td>"+this.name+"</td>\n" +
+                        "                                <td>"+this.phone+"</td>\n" +
+                        "                                <td>"+this.createDate+"</td>\n" +
+                        "                                <td>"+this.status+"</td>\n" +
+                        "                                <td>"+(this.canUse==true?"启用":"禁用")+"</td>\n" +
+                        "                                <td id="+this.id+">\n" +
+                        "                                    <button class=\"btn btn-rounded btn-success\">启用</button>\n" +
+                        "                                    <button class=\"btn btn-rounded btn-danger\">禁用</button>\n" +
+                        "                                    <button class=\"btn btn-rounded btn-primary\">详情</button>\n" +
+                        "                                </td>\n" +
+                        "                            </tr>")
+                })
+            }else{
+                alert("未查询到商铺信息");
+            }
+        });
+
+        //启用
+        $("#tbody").on("click",".btn-success",function () {
+            var id=$(this).parent().attr("id");
+            doDataAll("<%=basePath%>/shop/shopSwitch",{"id":id,"canUse":true},function (data) {
+                    if(data.code>0){
+                        alert("启用成功");
+                        window.location.reload();
+                    }else{
+                    alert("启用失败");
+                }
+            })
+        })
+
+        //禁用
+        $("#tbody").on("click",".btn-danger",function () {
+            var id=$(this).parent().attr("id");
+            doDataAll("<%=basePath%>/shop/shopSwitch",{"id":id,"canUse":false},function (data) {
+                if(data.code>0){
+                    alert("禁用成功");
+                    window.location.reload();
+                }else{
+                    alert("禁用失败");
+                }
+            })
+        })
+    })
+</script>

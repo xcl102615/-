@@ -1,0 +1,81 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ include file="../../../header/admin.jsp" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<div style="width: 100%;text-align: center">
+    <p>
+        id:${order.id}
+    </p>
+    <p>
+        name:${order.name}
+    </p>
+    <p>
+        createDate:${order.createDate}
+    </p>
+    <p>
+        description:${order.description}
+    </p>
+    <p>
+        user:${order.user.id}
+    </p>
+    <p>
+        shopName:${order.shop.name}
+    </p>
+    <p>
+        deliveryPrice:${order.deliveryPrice}
+    </p>
+    <p>
+        discountMoney:${order.discountMoney}
+    </p>
+    <p>
+        realPay:${order.realPay}
+    </p>
+    <p>
+        totalPrice:${order.totalPrice}
+    </p>
+    <p>
+        remarks:${order.remarks}
+    </p>
+<br><br>
+    <p>
+        商品详情:
+    </p>
+    <table  class="table table-hover">
+        <thead>
+            <td>
+                图片
+            </td>
+            <td>
+               名称
+            </td>
+            <td>
+                数量
+            </td>
+            <td>
+                单价
+            </td>
+            <td>
+               总价
+            </td>
+        </thead>
+      <c:forEach var="t" items="${order.orderDetails}">
+          <tr>
+              <td>
+                  <img src="<%=basePath%>/${t.img}" style="width: 100px" height="100px"/>
+              </td>
+              <td>
+                    ${t.foodName}
+              </td>
+              <td>
+                      ${t.num}
+              </td>
+              <td>
+                      ${t.unitPrice}
+              </td>
+              <td>
+                      ${t.price}
+              </td>
+          </tr>
+      </c:forEach>
+    </table>
+</div>

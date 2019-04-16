@@ -1,0 +1,356 @@
+package controller.food.impl;
+
+import controller.food.FoodController;
+import model.food.Food;
+import model.food.FoodFormat;
+import model.foodType.FoodType;
+import model.shop.Shop;
+import model.type.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import project.model.AjaxResult;
+import project.util.StringUtils;
+import service.food.impl.FoodServiceImpl;
+import service.food.impl.FoodTypeServiceImpl;
+import service.shop.impl.ShopServiceImpl;
+import service.type.impl.TypeServiceImpl;
+
+import java.util.*;
+
+@RequestMapping("food")
+@RestController
+public class FoodControllerImpl implements FoodController {
+    private Logger log = LoggerFactory.getLogger(FoodControllerImpl.class);
+    @Autowired
+    private FoodServiceImpl bll;
+    @Autowired
+    private FoodTypeServiceImpl foodTypeService;
+    @Autowired
+    private TypeServiceImpl typeService;
+    @Autowired
+    private  FoodServiceImpl foodService;
+    @Autowired
+    private ShopServiceImpl shopService;
+
+    /**
+     * 添加商品
+     *
+     * @param food
+     * @return
+     */
+    @PostMapping(value = "/addFood")
+    public AjaxResult addFood(@RequestBody Food food) {
+        if (StringUtils.objIsNull(food)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+
+        ////通过平台分类名称 查询出平台分类的 ID
+        String typeName=food.getType().getName();// 从foodd 对象中获取Type 的名称
+        Map map =new HashMap();
+        map.put("name",typeName);
+        List<Type> list =(List<Type>)typeService.select(map).getObj();
+        Map typeIdMap=new HashMap();
+        for(Type type : list){
+            String typeId=type.getId();
+            typeIdMap.put("typeId",typeId);//将Type 的id 值存入typeIdMap
+        }
+        Type type =new Type();
+        type.setId(typeIdMap.get("typeId").toString());
+        food.setType(type);// 拿取typeIdMap 中的 typeId值
+        ////通过店铺分类名称 查询出店铺分类的 ID
+        String foodTypeName=food.getFoodType().getName();//获取店铺分类名称
+        Map foodTypeMap=new HashMap();
+        foodTypeMap.put("shopId",shop.getId());
+        foodTypeMap.put("name",foodTypeName);
+        List<FoodType> foodTypeList=(List<FoodType>) foodTypeService.select(foodTypeMap).getObj();
+
+        Map foodTypeIdMap=new HashMap();
+        for(FoodType foodType:foodTypeList){//   对象只可能存在一个
+            String foodTypeId=foodType.getId();
+            foodTypeIdMap.put("foodTypeId",foodTypeId);
+        }
+        FoodType foodType=new FoodType();
+        foodType.setId(foodTypeIdMap.get("foodTypeId").toString());
+        food.setFoodType(foodType);
+        food.setShop(shop);//将shop对象 设置到 food对象中
+        log.info("进入商品新增方法 addFood()");
+        food.setId(StringUtils.getUUID());
+        food.setCreateDate(new Date());
+        return bll.save(food);
+    }
+
+    /**
+     * 删除商品
+     *
+     * @param food（id 、shop.id）
+     * @return
+     */
+    @PostMapping("/deleteFood")
+    public AjaxResult deleteFood(@RequestBody Food food) {
+        if (StringUtils.objIsNull(food)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        food.setShop(shop);
+        log.info("进入商品删除方法 addProduct()");
+        return bll.delete(food);
+    }
+
+    /**
+     * 修改商品 商品的编辑 上架下架的状态修改
+     *
+     * @param food
+     * @return
+     */
+    @PostMapping("/updateFood")
+    public AjaxResult updateFood(@RequestBody Food food) {
+        if (StringUtils.objIsNull(food)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        food.setShop(shop);
+        log.info("进入商品修改方法 updateFood()");
+        bll.update(food);
+        bll.selectOneById(food.getId());
+        return AjaxResult.build("1","修改成功", bll.selectOneById(food.getId()));
+
+    }
+
+    /**
+     * 根据当前店铺查找出所有食品
+     * @param map
+     * @return
+     */
+    @PostMapping("/findFood")
+    public AjaxResult findFood(@RequestBody Map<String, Object> map) {
+        if (StringUtils.objIsNull(map)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        log.info("进入商品查找方法 findFood()");
+        return bll.select(map);
+    }
+
+    /**
+     * 根据当前店铺 和food id值查找出当前对象（通过id查找food）
+     * @param food
+     * @return
+     */
+    @PostMapping("/findFoodById")
+    public AjaxResult findFoodById(@RequestBody Food food) {
+        if (StringUtils.objIsNull(food)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        log.info("进入通过id查找food方法 findFoodById()");
+        return bll.selectOneById(food.getId());
+    }
+
+
+    /**
+     * 商户版 查找出当前店铺的所有 在售 的食品
+     * @param shop
+     * @return
+     */
+    @PostMapping("findFoodBySell")
+    public AjaxResult findFoodBySell(@RequestBody Shop shop){
+        if (StringUtils.objIsNull(shop)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        Map map =new HashMap();
+        map.put("shop",shop);
+        map.put("status","1");
+        return bll.select(map);
+    }
+    /**
+     * 商户版 查找出当前店铺的所有 下架 的食品
+     * @param shop
+     * @return
+     */
+    @PostMapping("findFoodByNoSell")
+    public AjaxResult findFoodByNoSell(@RequestBody Shop shop){
+        if (StringUtils.objIsNull(shop)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        Map map =new HashMap();
+        map.put("shop",shop);
+        map.put("status","0");
+        return bll.select(map);
+    }
+
+    /**
+     * 根据shop id值 查找出当前   食品分类(FoodType)
+     * @param
+     * @return
+     */
+    @PostMapping("findAllFoodType")
+    public  AjaxResult findAllFoodType(){
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        Map shopId = new HashMap();
+        shopId.put("shopId", shop.getId());
+        List<FoodType> listFoodType = (List<FoodType>) foodTypeService.select(shopId).getObj();
+        /*List typeAndFood=new ArrayList();
+        for(FoodType list:listFoodType){
+            FoodType foodType=(FoodType)list;
+            Map map=new HashMap();
+            map.put("id",foodType.getId());
+            map.put("name",foodType.getName());
+            map.put("shopId",foodType.getShopId());
+            map.put("status",foodType.getStatus());
+            map.put("typeId",foodType.getTypeId());
+            map.put("description",foodType.getDescription());
+            map.put("createDate",foodType.getCreateDate());
+            Map mapFood=new HashMap();
+            mapFood.put("shpo",shop);
+            mapFood.put("foodType",foodType);
+            List<Food> foodList=(List<Food>) foodService.select(mapFood).getObj();
+            if(foodList.size()>0){
+                map.put("food",foodList);
+            }
+            typeAndFood.add(map);
+
+        }
+        */
+        return AjaxResult.build("1","查询成功",listFoodType);
+    }
+
+
+    /**
+     * foodType id值 查找出当前   食品分类(FoodType) 中的   在售食品(Food)
+     * @param foodType id和 shopId
+     * @return
+     */
+    @PostMapping("findAllFoodByFdType")
+    public  AjaxResult findAllFoodByFdType(@RequestBody FoodType foodType){
+        if (StringUtils.objIsNull(foodType)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        Map map =new HashMap();//查询条件 根据店铺id 及 食品分类id  及食品转态查询食品
+        Shop shop=new Shop();
+        shop.setId(foodType.getShopId());
+        map.put("shop",shop);
+        map.put("foodType",foodType);
+        List<Food> foodList=(List<Food>)foodService.select(map).getObj();
+        return AjaxResult.build("1","查询成功",foodList);
+    }
+
+
+    /**
+     * foodType id值 查找出当前   食品分类(FoodType) 中的   在售食品(Food)
+     * @param foodType id和 shopId
+     * @return
+     */
+    @PostMapping("findSellFoodByFdType")
+    public  AjaxResult findSellFoodByFdType(@RequestBody FoodType foodType){
+        if (StringUtils.objIsNull(foodType)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        Map map =new HashMap();//查询条件 根据店铺id 及 食品分类id  及食品转态查询食品
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        map.put("shop",shop);
+        map.put("foodType",foodType);
+        map.put("status","1");
+        List<Food> foodList=(List<Food>)foodService.select(map).getObj();
+        return AjaxResult.build("1","查询成功",foodList);
+    }
+
+    /**
+     * foodType id值和shopId 查找出当前   食品分类(FoodType) 中的   下架食品(Food)
+     * @param foodType id和 shopId
+     * @return
+     */
+    @PostMapping("findNoSellFoodByFdType")
+    public  AjaxResult findNoSellFoodByFdType(@RequestBody FoodType foodType){
+        if (StringUtils.objIsNull(foodType)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        Map map =new HashMap();//查询条件 根据店铺id 及 食品分类id  及食品转态查询食品
+
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+        map.put("shop",shop);
+        map.put("foodType",foodType);
+        map.put("status","0");
+        List<Food> foodList=(List<Food>)foodService.select(map).getObj();
+        return AjaxResult.build("1","查询成功",foodList);
+    }
+
+
+    /**
+     * 商户版 添加食品 查出当前店铺的所有分类 以及 平台大分类
+     *
+     * @param
+     * @return
+     */
+    @PostMapping("findAllTypeAndFdType")
+    public AjaxResult findAllType( ) {
+        Shop shop = shopService.getShopByUser();
+        if (shop == null) {
+            return AjaxResult.build("0", "该用户未开通店铺");
+        }
+
+        Map shopId = new HashMap();
+        shopId.put("shopId", shop.getId());
+        List<FoodType> listFoodType = (List<FoodType>) foodTypeService.select(shopId).getObj();
+        List<Type> listFood = (List<Type>) typeService.selectAll().getObj();
+        Map map = new HashMap();
+        if (listFoodType.size() > 0) {
+            map.put("FoodType", listFoodType);
+        }
+        if (listFood.size() > 0) {
+            map.put("Type", listFood);
+        }
+        return AjaxResult.build("1", "系统已响应您的请求！", map);
+    }
+
+    /**
+     * 添加食品规格
+     * @param foodFormat
+     * @return
+     */
+    @Override
+    @PostMapping("addFoodFormat")
+    public AjaxResult addFoodFormat(@RequestBody FoodFormat foodFormat) {
+        if (StringUtils.objIsNull(foodFormat)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        foodFormat.setCreateDate(new Date());
+        foodFormat.setId(StringUtils.getUUID());
+        return bll.addFoodFormat(foodFormat);
+    }
+
+    /**
+     * 删除食品规格
+     * @param foodFormat
+     * @return
+     */
+    @Override
+    @PostMapping("deleteFoodFormat")
+    public AjaxResult deleteFoodFormat(@RequestBody FoodFormat foodFormat) {
+        if (StringUtils.objIsNull(foodFormat)) {
+            return AjaxResult.build("0", "对象不能为空");
+        }
+        return bll.deleteFoodFormat(foodFormat);
+    }
+}

@@ -1,0 +1,115 @@
+package model.printer;
+
+import java.util.Date;
+
+
+public class Printer{
+    private int id;
+
+    private String shopId;
+    //    店铺id
+    private String sn;
+    //    打印机SN码
+    private String ukey;
+    //    打印机key码
+    private String phone;
+    //    打印机手机号
+    private String remarks;
+    //    打印机名称
+    private int times;
+    //    每次打印次数
+    private int status;
+    //    1为正常显示，0为禁用
+    private Date createTime;
+    private Date updateTime;
+    private boolean autoPrint;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    //自动打印
+    public String getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
+    }
+
+    public String getSn() {
+        return sn;
+    }
+
+    public void setSn(String sn) {
+        this.sn = sn;
+    }
+
+    public String getUkey() {
+        return ukey;
+    }
+
+    public void setUkey(String ukey) {
+        this.ukey = ukey;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public int getTimes() {
+        return times;
+    }
+
+    public void setTimes(int times) {
+        this.times = times;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public boolean isAutoPrint() {
+        return autoPrint;
+    }
+
+    public void setAutoPrint(boolean autoPrint) {
+        this.autoPrint = autoPrint;
+    }
+}

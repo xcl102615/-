@@ -1,0 +1,38 @@
+package service.deliveryOrder.impl;
+
+import model.deliveryOrder.DeliveryMoney;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.model.AjaxResult;
+import project.service.BaseService;
+import service.deliveryOrder.DeliveryMoneyService;
+
+
+@Service
+public class DeliveryMoneyServiceImpl extends BaseService implements DeliveryMoneyService {
+
+    private Logger log = LoggerFactory.getLogger(DeliveryMoneyServiceImpl.class);
+    @Autowired
+    private dao.deliveryOrder.DeliveryMoneyMapper dao;
+
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+
+    public AjaxResult findBalance(DeliveryMoney deliveryMoney){
+        //获取总收入
+        deliveryMoney.setType("收入");
+        Double income=dao.findBalance(deliveryMoney);
+        log.info("骑手总收入："+income);
+        //获取总支出
+        deliveryMoney.setType("支出");
+        Double expenditure=dao.findBalance(deliveryMoney);
+        log.info("骑手总支出："+expenditure);
+        return AjaxResult.build("1","查询成功",income-expenditure);
+
+    }
+}

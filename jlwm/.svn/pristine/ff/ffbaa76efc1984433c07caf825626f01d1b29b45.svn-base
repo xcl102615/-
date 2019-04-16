@@ -1,0 +1,48 @@
+package service.order.impl;
+
+import model.order.Order;
+import model.shop.Shop;
+import model.user.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.model.AjaxResult;
+import project.service.BaseService;
+import project.util.ShiroUtil;
+import service.order.OrderService;
+
+import java.util.List;
+
+
+@Service
+public class OrderServiceImpl extends BaseService implements OrderService {
+    @Autowired
+    private dao.order.orderMapper dao;
+
+    @Autowired
+    private dao.shop.ShopMapper shopDao;
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+
+    public AjaxResult findShopOrder(Order order) {
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        Shop shop=new Shop();
+        shop.setUser(user);
+        shop=shopDao.selectOne(shop);//通过用户查询商铺
+        if(shop==null){
+            return AjaxResult.build("0","该用户未开通店铺");
+        }
+        //设置条件
+       order.setShop(shop);
+        List<Order> list=dao.findShopOrder(order);
+        if(list.size()==0){
+            return AjaxResult.build("0","未查询到订单");
+        }
+        return AjaxResult.build("1","查询成功",list);
+    }
+}

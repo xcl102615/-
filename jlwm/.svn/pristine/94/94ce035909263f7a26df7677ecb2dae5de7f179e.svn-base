@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.wx.MessagePushDao">
+
+    <resultMap id="BaseResultMap" type="model.messagePush.MessageUserInfo">
+        <result column="id" property="id"/>
+        <result column="toUserName" property="toUserName"/>
+        <result column="msgType" property="msgType"/>
+        <result column="event" property="event"/>
+        <result column="nickname" property="nickname"/>
+        <result column="sex" property="sex"/>
+        <result column="headimgurl" property="headimgurl"/>
+        <result column="subscribe_time" property="subscribe_time"/>
+        <result column="openid" property="openid"/>
+        <result column="unionid" property="unionid"/>
+
+    </resultMap>
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="toUserName != null">
+                toUserName,
+            </if>
+            <if test="msgType != null">
+                msgType,
+            </if>
+            <if test="event != null">
+                event,
+            </if>
+            <if test="nickname != null">
+                nickname,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="headimgurl != null">
+                headimgurl,
+            </if>
+            <if test="subscribe_time != null">
+                subscribe_time,
+            </if>
+            <if test="openid != null">
+                openid,
+            </if>
+            <if test="unionid != null">
+                unionid,
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="toUserName != null">
+                #{toUserName},
+            </if>
+            <if test="msgType != null">
+                #{msgType},
+            </if>
+            <if test="event != null">
+                #{event},
+            </if>
+            <if test="nickname != null">
+                #{nickname},
+            </if>
+            <if test="sex != null">
+                #{sex},
+            </if>
+            <if test="headimgurl != null">
+                #{headimgurl},
+            </if>
+            <if test="subscribe_time != null">
+                #{subscribe_time},
+            </if>
+            <if test="openid != null">
+                #{openid},
+            </if>
+            <if test="unionid != null">
+                #{unionid},
+            </if>
+
+        </trim>
+    </sql>
+    <insert id="addUser" parameterType="model.messagePush.MessageUserInfo">
+        insert into t_jlkj_subscribe (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+
+    </insert>
+    <delete id="delUser" parameterType="java.lang.String">
+       delete from t_jlkj_subscribe where `openId`=#{openId}
+    </delete>
+
+    <select id="select" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from t_address where `unionid`=#{unionid};
+    </select>
+
+</mapper>

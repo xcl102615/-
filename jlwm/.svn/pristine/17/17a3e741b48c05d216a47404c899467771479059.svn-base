@@ -1,0 +1,68 @@
+package service.deliveryOrder.impl;
+
+import model.deliveryOrder.DeliveryOrder;
+import model.order.Order;
+import model.user.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.model.AjaxResult;
+import project.service.BaseService;
+import service.deliveryOrder.DeliveryOrderService;
+
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+@Service
+public class DeliveryOrderServiceImpl extends BaseService implements DeliveryOrderService {
+    @Autowired
+    private dao.deliveryOrder.DeliveryOrderMapper dao;
+
+    @Autowired
+    private service.order.impl.OrderServiceImpl orderService;
+
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+
+    @Override
+    public AjaxResult save(Object object) {
+        //新增骑手订单
+        int i=dao.save(object);
+        if(i<=0){
+            return AjaxResult.build("0","骑手订单新增失败");
+        }
+        //更改订单状态
+        Order order=new Order();
+        order.setDeliveryReceiptTime(new Date());//骑手接单时间
+        order.setDeliveryStatus(2);
+        order.setStatus("已接单");
+        order.setDescription("骑手已接单");
+        order.setId(((DeliveryOrder)object).getId());
+        i=(int)orderService.update(order).getObj();
+        if(i<=0){
+            return AjaxResult.build("0","更改订单状态失败");
+        }
+        return AjaxResult.build("1","接单成功");
+    }
+
+    /**
+     * 查询配送中的订单
+     * @return
+     */
+    public AjaxResult findDistribution(User user) {
+        Map map=new HashMap();
+        map.put("user",user);
+        map.put("status","配送中");
+        List list=dao.select(map);
+        if(list.size()==0){
+            return AjaxResult.build("0","未查询到结果");
+        }
+        return AjaxResult.build("1","已查询到结果",list);
+    }
+}

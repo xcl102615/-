@@ -1,0 +1,6 @@
+package dao.deliveryOrder;
+
+import project.dao.BaseDao;
+
+public interface DeliveryMoneyMapper extends BaseDao {
+}

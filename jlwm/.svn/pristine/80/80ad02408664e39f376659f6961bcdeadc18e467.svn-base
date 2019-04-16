@@ -1,0 +1,209 @@
+package controller.user.impl;
+
+import controller.user.UserDao;
+import model.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.*;
+import project.model.AjaxResult;
+import project.util.MD5;
+import project.util.ShiroUtil;
+import project.util.StringUtils;
+import service.user.impl.UserServiceImpl;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/***
+ * 用户控制层接口
+ */
+@RequestMapping(value = "user")
+@RestController
+public class UserController implements UserDao {
+    @Autowired
+    private UserServiceImpl userService;
+
+    private Logger log = LoggerFactory.getLogger(UserController.class);
+
+    /***
+     * 用户登录接口
+     * @param user 前台用户登录数据对象
+     * @return
+     */
+    @RequestMapping(value = "login", method = RequestMethod.POST)
+    public Object login(@RequestBody User user) {
+        if (user == null) {
+            return AjaxResult.build("-1", "参数错误!");
+        }
+        user.setPassword(MD5.GetPwd(user.getPassword()));
+        AjaxResult result = userService.selectOne(user);
+        user = (User) result.getObj();
+        if (result.getObj() == null) {
+            return AjaxResult.build("0", "用户名或密码错误");
+        }
+        //存在用户存入session中
+        ShiroUtil.setAttribute("user", result.getObj());
+//        shiro 登录操作 不执行会拦截请求 简单的采用了 session验证。
+        ShiroUtil.login(user.getName(), user.getPassword(), false);
+        //清空密码不返回给前端
+        user.setPassword(null);
+        return AjaxResult.build("1", "登录成功!", user);
+    }
+
+    /**
+     * 解密用户敏感数据
+     *
+     * @param encryptedData 明文,加密数据
+     * @param iv            加密算法的初始向量
+     * @param code          用户允许登录后，回调内容会带上 code（有效期五分钟），开发者需要将 code 发送到开发者服务器后台，使用code 换取 session_key api，将 code 换成 openid 和 session_key
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/decodeUserInfo", method = RequestMethod.POST)
+    public Map decodeUserInfo(String encryptedData, String iv, String code, HttpServletRequest request,HttpServletResponse response) {
+        Map map = new HashMap();
+        if (encryptedData == null || encryptedData == "") {
+            map.put("返回信息", "encryptedData字段不能为空！");
+            return map;
+        } else if (iv == null || iv == "") {
+            map.put("返回信息", "iv字段不能为空！");
+            return map;
+        } else if (code == null || code == "") {
+            map.put("返回信息", "code字段不能为空！");
+            return map;
+        }
+        // 登录凭证不能为空
+        if (code == null || code.length() == 0) {
+            map.put("status", 0);
+            map.put("msg", "code 不能为空");
+            return map;
+        }
+        return  userService.decodeUserInfo(encryptedData, iv, code);
+    }
+
+    @PostMapping(value = "wxLogin")
+    public Object wxLogin() {
+        return null;
+    }
+
+    /***
+     * 用户安全注销登录接口
+     * @return 操作结果
+     */
+    @RequestMapping(value = "logOut")
+    public Object logOut() {
+        ShiroUtil.invalidate();
+        return AjaxResult.build("1", "注销登陆");
+    }
+
+    /***
+     * 用户注册接口
+     * @param user 表单数据 或json对象
+     * @param result 表单校验 无需传递
+     * @return 操作返回状态
+     */
+    @PostMapping(value = "reg")
+    public Object register(@Valid @RequestBody User user, BindingResult result) {
+        if (result.hasErrors()) {
+            List<ObjectError> errorList = result.getAllErrors();
+            return AjaxResult.build("-1", "注册失败", errorList);
+        }
+//       初始化用户Id
+        user.setId(StringUtils.getUUID());
+        //md5盐值加密
+        user.setCreateDate(new Date());
+//      账号创建的时间
+        user.setPassword(MD5.GetPwd(user.getPassword()));
+        return userService.save(user);
+    }
+
+    /***
+     *
+     * @param user
+     * @param result
+     * @return
+     */
+    @PostMapping(value = "update")
+    public Object updateUserInfo(@Valid @RequestBody User user, BindingResult result) {
+        if (result.hasErrors()) {
+            List<ObjectError> errorList = result.getAllErrors();
+            return AjaxResult.build("-1", "数据格式不正确", errorList);
+        }
+        return userService.update(user);
+    }
+
+    /***
+     * 修改密码
+     * @param map
+     * @return
+     */
+    @PostMapping(value = "updatePwd")
+    public AjaxResult updatePwd(@RequestBody Map map) {
+        if (map.get("password") == null || map.get("newPassword") == null) {
+            return AjaxResult.build("0", "原密码或新密码不能为空");
+        }
+        log.info("进入修改密码 updatePwd()");
+        return userService.updatePwd(map);
+    }
+
+    /**
+     * 获取登录用户信息
+     *
+     * @return
+     */
+    @PostMapping(value = "getCurrentUser")
+    public AjaxResult getCurrentUser() {
+        User user = ShiroUtil.getCurrentUser(new User());
+        if (user == null) {
+            return AjaxResult.build("0", "用户未登录");
+        }
+        return AjaxResult.build("1", "获取用户信息", user);
+    }
+
+
+    /*
+     * 揭秘用户手机号
+     */
+    @RequestMapping(value = "/getPhoneNumber")
+    @ResponseBody
+    public Object getPhoneNumber(String encryptedData, String iv) {
+        log.info("getPhoneNumber中前台传的参数" + "encrypData:" + encryptedData + "iv:" + iv);
+        if (encryptedData == null) {
+            return AjaxResult.build("0", "encrypData参数为空！");
+        } else if (iv == null) {
+            return AjaxResult.build("0", "iv参数为空！");
+        }
+        return userService.getPhoneNumber(encryptedData, iv);
+    }
+
+    /**
+     * 通过微信登录注册
+     * @param map
+     * @return
+     */
+    @PostMapping(value = "wxRegister")
+    public AjaxResult wxRegister(@RequestBody Map map){
+        //       初始化用户Id
+        User user=new User();
+        user.setId(StringUtils.getUUID());
+        user.setCreateDate(new Date());
+//      账号创建的时间
+        user.setWxId(map.get("openId").toString());
+        user.setName(StringUtils.ToUnicode(map.get("nickName").toString()));
+        user.setSex(map.get("gender").toString());
+        user.setPhoto(map.get("avatarUrl").toString());
+        user.setStatus("1");
+        user.setPhone(map.get("phone").toString());
+        return userService.save(user);
+    }
+
+
+}

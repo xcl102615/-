@@ -1,0 +1,283 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="../../header/delivery.jsp" %>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Realm - Forms</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Bluth Company">
+  </head>
+  <body>
+  <div id="wrap">
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <div class="logo">
+            <img style="height: 30px;width: 105px" src="<%=basePath%>/plugins/assets/img/jlwmlogo.png" alt="Realm Admin Template">
+          </div>
+          <a class="btn btn-navbar visible-phone" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="btn btn-navbar slide_menu_left visible-tablet">
+
+          </a>      <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+
+          <div class="top-menu visible-desktop">
+            <ul class="pull-left">
+              <li><a id="messages" data-notification="2" href="#"><i class="icon-envelope"></i> 消息</a></li>
+              <li><a id="notifications" data-notification="3" href="#"><i class="icon-globe"></i> 通知</a></li>
+            </ul>
+            <ul class="pull-right">
+              <li><a id="logOut"><i class="icon-off"></i> 退出登录</a></li>
+            </ul>
+          </div>
+
+          <div class="top-menu visible-phone visible-tablet">
+            <ul class="pull-right">
+              <li><a title="link to View all Messages page, no popover in phone view or tablet" href="#"><i class="icon-envelope"></i></a></li>
+              <li><a title="link to View all Notifications page, no popover in phone view or tablet" href="#"><i class="icon-globe"></i></a></li>
+              <li><a href="login.jsp"><i class="icon-off"></i></a></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+
+      <!-- Side menu -->
+      <div class="sidebar-nav nav-collapse collapse">
+        <div class="user_side clearfix">
+          <img id="userImg" alt="Odinn god of Thunder">
+          <h5 id="userName">用户名</h5>
+          <a href="#"><i class="icon-cog"></i> 设置</a>
+        </div>
+        <div class="accordion" id="accordion2">
+          <div class="accordion-group">
+            <div class="accordion-heading">
+              <a class="accordion-toggle b_C3F7A7 collapsed" data-toggle="collapse" data-parent="#accordion2"
+                 href="#collapse1"><i class="icon-magic"></i> <span>订单管理</span></a>
+            </div>
+            <div id="collapse1" class="accordion-body collapse">
+              <div class="accordion-inner">
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/ui_features.jsp"><i
+                        class="icon-star"></i> 平台可接订单</a>
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/forms.jsp"><i
+                        class="icon-list-alt"></i> 我的所有订单</a>
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/tables.jsp"><i
+                        class="icon-table"></i> 我配送中订单</a>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-group">
+            <div class="accordion-heading">
+              <a class="accordion-toggle b_9FDDF6 collapsed" data-toggle="collapse" data-parent="#accordion2"
+                 href="#collapse2"><i class="icon-reorder"></i> <span>资金管理</span></a>
+            </div>
+            <div id="collapse2" class="accordion-body collapse">
+              <div class="accordion-inner">
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/notifications.jsp"><i
+                        class="icon-rss"></i> 个人资料</a>
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/calendar.jsp"><i
+                        class="icon-calendar"></i> 提现</a>
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/gallery.jsp"><i
+                        class="icon-picture"></i> 提现记录</a>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-group">
+            <div class="accordion-heading">
+              <a class="accordion-toggle b_9FDDF6 collapsed" data-toggle="collapse" data-parent="#accordion2"
+                 href="#collapse3"><i class="icon-reorder"></i> <span>设置</span></a>
+            </div>
+            <div id="collapse3" class="accordion-body collapse">
+              <div class="accordion-inner">
+                <a class="accordion-toggle" href="#"><i
+                        class="icon-rss"></i> 定位</a>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /Side menu -->
+
+      <!-- Main window -->
+      <div class="main_container" id="tables_page">
+
+
+
+
+        <div class="row-fluid">
+          <div class="widget widget-padding span12">
+            <div class="widget-header">
+              <i class="icon-group"></i>
+              <h5>我的所有订单</h5>
+              <div class="widget-buttons">
+                <a href="http://www.datatables.net/usage/" data-title="Documentation" class="tip" target="_blank"><i class="icon-external-link"></i></a>
+                <a href="#" data-title="Collapse" data-collapsed="false" class="tip collapse"><i class="icon-chevron-up"></i></a>
+              </div>
+            </div>
+            <div class="widget-body">
+              <table id="users" class="table table-striped table-bordered dataTable">
+                <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>创建时间</th>
+                  <th>订单编号</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="content">
+               <%-- <tr>
+                  <td>Amie</td>
+                  <td>Admin</td>
+                  <td>20-05-2012</td>
+                  <td><span class="label label-success">Active</span></td>
+                  <td>
+                    <div class="btn-group">
+                      <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                        Action
+                        <span class="caret"></span>
+                      </a>
+                      <ul class="dropdown-menu pull-right">
+                        <li><a href="#"><i class="icon-envelope"></i> Email</a></li>
+                        <li><a href="#"><i class="icon-edit"></i> Edit</a></li>
+                        <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>--%>
+
+                </tbody>
+              </table>
+            </div> <!-- /widget-body -->
+          </div> <!-- /widget -->
+        </div> <!-- /row-fluid -->
+
+      </div>
+      <!-- /Main window -->
+
+    </div><!--/.fluid-container-->
+  </div><!-- wrap ends-->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="exampleModalLabel">订单详情</h4>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <h5 style="text-align: center">商品名称:<span id="foodName"></span></h5>
+            </div>
+            <div class="form-group">
+              <h5 style="text-align: center">数量:<span id="number"></span></h5>
+            </div>
+            <div class="form-group">
+              <h5 style="text-align: center">价格:<span id="price"></span></h5>
+            </div>
+            <div class="form-group">
+              <h5 style="text-align: center">实付金额:<span id="realPay"></span></h5>
+            </div>
+            <div class="form-group">
+              <h5 style="text-align: center">姓名:<span id="name"></span></h5>
+            </div>
+            <div class="form-group">
+              <h5 style="text-align: center">手机号:<span id="phone"></span></h5>
+            </div>
+            <div class="form-group">
+              <h5 style="text-align: center">地址:<span id="userAddress"></span></h5>
+            </div>
+            <div class="form-group">
+              <h5 style="text-align: center">备注:<span id="remarks"></span></h5>
+            </div>
+            <div class="form-group">
+              <h5 style="text-align: center">店铺名称:<span id="shopName"></span></h5>
+            </div>
+            <div class="form-group">
+              <h5 style="text-align: center">店铺地址:<span id="shopAddress"></span></h5>
+            </div>
+            <div class="form-group">
+              <h5 style="text-align: center">配送费:<span id="deliveryPrice"></span></h5>
+            </div>
+            <div class="form-group">
+             <h5 style="text-align: center">下单时间:<span id="paymentTime"></span></h5>
+            </div>
+
+
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <%--<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>--%>
+          <%--<button type="button" class="btn btn-primary">送达顾客</button>--%>
+        </div>
+      </div>
+    </div>
+  </div>
+  </body>
+  <script>
+
+    $(function () {
+      
+        function taskUI(task) {
+
+            var str = "";
+            if (task != null) {
+                str += '<tr>\n' +
+                    '                  <td>'+number+++'</td>\n' +
+                    '                  <td>'+task.createDate+'\t</td>\n' +
+                    '                  <td>'+task.order.id+'</td>\n' +
+                    '                  <td><span class="label label-success">'+task.status+'</span></td>\n' +
+                    '                  <td><button type="button" id='+task.order.id+' class="btn btn-success  btn-xs">查看详情</button></td>\n' +
+                    '                </tr>'
+                return str;
+            }
+        }
+        $("body").on("click","button.btn",function () {
+            var id = $(this).attr("id");
+            var order=new Object();
+            order.id=id;
+            doDataAllAsc("<%=basePath%>/order/findOrderById",order,function (data) {
+                $(data.obj).each(function () {
+                    $("#name").html(this.address.name);
+                    $("#phone").html(this.address.phone);
+                    $("#price").html(this.totalPrice+'元');
+                    $("#userAddress").html(this.address.location);
+                    $("#remarks").html(this.remarks);
+                    $("#realPay").html(this.realPay+'元');
+                    $("#shopName").html(this.shop.name);
+                    $("#shopAddress").html(this.shop.location);
+                    $("#deliveryPrice").html(this.deliveryPrice+'元');
+                    var  shuzhu=new Array;
+                    var  number=new Array();
+                    var foodNumber=0;
+                    $(this.orderDetails).each(function () {
+                        shuzhu.push(this.foodName+"x"+this.num);
+                       foodNumber=foodNumber+this.num
+                    });
+                    $("#foodName").html(shuzhu.toString());
+                    $("#number").html(foodNumber);
+                    $("#paymentTime").html(this.paymentTime)
+                })
+
+            });
+            $('#exampleModal').modal();
+
+            // var id = $(this).attr("id");
+            // var teacherName = $(this).attr("name");
+            // location.href="indexClass?id1="+getURLParamValue("id")+"&teacherName="+teacherName+"&id="+id;
+        })
+
+    })
+    window.number = 1;//用于计算序号
+  </script>
+</html>

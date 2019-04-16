@@ -1,0 +1,6 @@
+package dao.order;
+
+import project.dao.BaseDao;
+
+public interface orderMapper extends BaseDao {
+}

@@ -1,0 +1,91 @@
+package service.shop.impl;
+
+import model.food.Food;
+import model.foodType.FoodType;
+import model.shop.Shop;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.model.AjaxResult;
+import project.util.StringUtils;
+import service.food.impl.FoodServiceImpl;
+import service.food.impl.FoodTypeServiceImpl;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+@Service
+public class ProtalShopService {
+    private Logger log = LoggerFactory.getLogger(ProtalShopService.class);
+    @Autowired
+    private ShopServiceImpl shopServiceImpl;
+    @Autowired
+    private FoodTypeServiceImpl foodTypeServiceImpl;
+    @Autowired
+    private FoodServiceImpl foodService;
+
+    public AjaxResult protalShop(Shop shop) {
+        log.info("获取当前店铺的首页数据信息...");
+        List afterList = new ArrayList();
+        Map map = new HashMap();
+        //查找出当前店铺的基本信息
+        Shop shop1= (Shop) shopServiceImpl.selectOneById(shop.getId()).getObj();
+        Date date =new Date();
+        DateFormat df = new SimpleDateFormat("HH:mm:ss");
+        int i=StringUtils.compare_date(df.format(date),df.format(shop1.getSpecialTime()));
+        if(i==-1){
+            shop1.setSpecialDeliveryPrice(shop1.getCommonDeliveryPrice());
+        }
+        map.put("shop", shop1);
+        Map map2 = new HashMap();
+        map2.put("shopId", shop.getId());
+        //查找出当前店铺的所有食物分类
+        List<FoodType> listFoodType = (List<FoodType>) foodTypeServiceImpl.select(map2).getObj();
+        List listfoodType = new ArrayList();
+        for (Object list : listFoodType) {
+            FoodType foodType = (FoodType) list;
+            Map newmap = new HashMap();
+            newmap.put("id", foodType.getId());
+            newmap.put("name", foodType.getName());
+            newmap.put("shopId", foodType.getShopId());
+            newmap.put("description", foodType.getDescription());
+            newmap.put("createDate", foodType.getCreateDate());
+            newmap.put("status", foodType.getStatus());
+            newmap.put("typeId", foodType.getTypeId());
+            Map foodmap = new HashMap();
+            foodmap.put("shop", shop);
+            foodmap.put("foodType", foodType);
+            //根据shop id值和 foodType id值查找所有食物
+            List<Food> listFood = (List<Food>) foodService.select(foodmap).getObj();
+            if (listFood.size() > 0) {
+                newmap.put("food", listFood);
+            }
+            listfoodType.add(newmap);
+        }
+        map.put("foodType", listfoodType);
+        afterList.add(map);
+        return AjaxResult.build("1", "系统已响应您的请求！", afterList);
+    }
+
+    /**
+     * 商户版店铺首页的食物
+     *
+     * @param food shopId foodType status 条件查询
+     * @return
+     */
+    public AjaxResult protalFoodAdmin(Food food) {
+        Map map = new HashMap();
+        map.put("shop", food.getShop());
+        map.put("foodType",food.getFoodType());
+        map.put("status",food.getStatus());
+        List<Food> list=(List)foodService.select(map).getObj();
+        if(list.size()==0){
+            return AjaxResult.build("0","未查到数据");
+        }
+        return AjaxResult.build("1","查询到数据",list);
+    }
+
+}

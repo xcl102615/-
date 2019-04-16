@@ -1,0 +1,6 @@
+package dao.user;
+
+import project.dao.BaseDao;
+
+public interface UserMapper extends BaseDao {
+}

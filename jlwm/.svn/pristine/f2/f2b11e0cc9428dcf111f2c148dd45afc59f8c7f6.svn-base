@@ -1,0 +1,17 @@
+package dao.order;
+
+import model.order.Order;
+import project.dao.BaseDao;
+
+import java.util.List;
+
+public interface orderMapper extends BaseDao {
+
+    List<Order> findShopOrder(Order order);//查询商家订单
+
+    List<Order> getToBeSentOut(Order order);//查询商家待送出订单
+
+    List<Order> findShopOrderAll(Order order);//查询商家待送出订单
+
+    List<Order> getOrderByStatus(Order order);//商户每隔5秒查询是否有未接单的订单
+}

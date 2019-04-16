@@ -1,0 +1,27 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@taglib prefix="shiro" uri="http://shiro.apache.org/tags" %>
+<%
+    String path = request.getContextPath();
+    String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path;
+    String baseImgPath="https://wm-1253155025.cos.ap-guangzhou.myqcloud.com";
+%>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="<%=basePath%>/plugins/dist/vendor/simple-line-icons/css/simple-line-icons.css">
+    <link rel="stylesheet" href="<%=basePath%>/plugins/dist/vendor/font-awesome/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="<%=basePath%>/plugins/dist/css/styles.css">
+    <script src="<%=basePath%>/plugins/dist/vendor/jquery/jquery.min.js"></script>
+    <script src="<%=basePath%>/plugins/dist/vendor/popper.js/popper.min.js"></script>
+    <script src="<%=basePath%>/plugins/dist/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="<%=basePath%>/plugins/dist/vendor/chart.js/chart.min.js"></script>
+    <script src="<%=basePath%>/plugins/dist/js/carbon.js"></script>
+    <script src="<%=basePath%>/plugins/dist/js/demo.js"></script>
+    <script src="<%=basePath%>/script/common/public.js"></script>
+    <script src="<%= basePath %>/script/common/ajax.js"></script>
+    <script src="<%=basePath%>/script/common/jquery-public.js"></script>
+</head>
+<body>
+
+</body>
+</html>

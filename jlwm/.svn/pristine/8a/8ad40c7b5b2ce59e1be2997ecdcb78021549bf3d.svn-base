@@ -1,0 +1,65 @@
+package controller.wxController;
+
+import java.io.PrintWriter;
+import java.util.Enumeration;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@RequestMapping("/wechat")
+@Controller
+public class WechatController {
+	private static Logger logger = LoggerFactory.getLogger(WechatController.class);
+
+	private static String WECHAT_TOKEN = "123";
+
+	@RequestMapping(value = "/wx")
+	public void get(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		System.out.println(request);
+		logger.error("WechatController   ----   WechatController");
+
+		System.out.println("========WechatController========= ");
+		logger.info("请求进来了...");
+		String ToUserName = request.getParameter("ToUserName");/// 微信加密签名
+		logger.info("ToUserName" + ToUserName);
+		String FromUserName = request.getParameter("FromUserName");/// 微信加密签名
+		logger.info("FromUserName" + FromUserName);
+		String CreateTime = request.getParameter("CreateTime");/// 微信加密签名
+		logger.info("CreateTime" + CreateTime);
+		String MsgType = request.getParameter("MsgType");/// 微信加密签名
+		logger.info("MsgType" + MsgType);
+		String Event = request.getParameter("Event");/// 微信加密签名
+		logger.info("Event" + Event);
+		String MsgId = request.getParameter("MsgId ");/// 微信加密签名
+		logger.info("MsgId" + MsgId);
+
+		logger.info("------------------------------------------------");
+		Enumeration pNames = request.getParameterNames();
+		while (pNames.hasMoreElements()) {
+			String name = (String) pNames.nextElement();
+			String value = request.getParameter(name);
+			// out.print(name + "=" + value);
+
+			String log = "name =" + name + "     value =" + value;
+			logger.error(log);
+		}
+		System.out.println("开始加载微信加密签名、时间戳、随机数、随机字符串、");
+		String signature = request.getParameter("signature");/// 微信加密签名
+		String timestamp = request.getParameter("timestamp");/// 时间戳
+		String nonce = request.getParameter("nonce"); /// 随机数
+		String echostr = request.getParameter("echostr"); // 随机字符串
+		PrintWriter out = response.getWriter();
+		out.print(echostr);
+
+		out.close();
+		System.out.println("执行到这里了");
+		
+
+	}
+
+}

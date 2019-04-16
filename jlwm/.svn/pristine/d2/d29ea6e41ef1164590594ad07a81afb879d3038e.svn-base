@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.deliveryOrder.DeliveryOrderMapper">
+
+    <resultMap id="BaseResultMap" type="model.deliveryOrder.DeliveryOrder">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="createDate" property="createDate"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+
+    </resultMap>
+
+    <!--扩展 resultMap-->
+    <resultMap id="resultMap" type="model.deliveryOrder.DeliveryOrder" extends="BaseResultMap">
+
+        <!--1对1-->
+        <association property="user" javaType="model.user.User">
+            <id column="user" property="id"/>
+        </association>
+        <association property="order" javaType="model.order.Order">
+            <id column="order" property="id"/>
+        </association>
+        <!--1对多-->
+        <!--<collection property="roles" column="id"-->
+        <!--javaType="ArrayList" ofType="java.lang.Object"-->
+        <!--select="dao.impl.RoleMapper.selectRoles">-->
+        <!--</collection>-->
+    </resultMap>
+    <sql id="Base_Column_List">
+--         id,name,createDate,status,description,password
+      *
+    </sql>
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="createDate != null">
+                createDate,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+          
+            <if test="user != null">
+                `user`,
+            </if>
+            <if test="order != null">
+                `order`,
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="createDate != null">
+                #{createDate},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+           
+            <if test="user != null">
+                #{user.id},
+            </if>
+            <if test="order != null">
+                #{order.id},
+            </if>
+        </trim>
+    </sql>
+    <!--涉及条件的统一配置，特殊需求在方法上改动-->
+    <sql id="condition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+                <!--
+                    根据name模糊查询
+                -->
+                <if test="user">
+                    user=#{user.id} and
+                </if>
+                <if test="order">
+                    `order`=#{order.id} and
+                </if>
+            </trim>
+        </where>
+    </sql>
+    <!--更新操作 统一配置-->
+    <sql id="forUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="name!=null">
+                `name`=#{name},
+            </if>
+            <if test="status!=null">
+                `status`=#{status},
+            </if>
+            <if test="description!=null">
+                `description`=#{description},
+            </if>
+        </trim>
+    </sql>
+    <!--组件需要以下方法-->
+    <insert id="save" parameterType="model.deliveryOrder.DeliveryOrder">
+        insert into t_deliveryOrder (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+
+    </insert>
+
+    <delete id="delete" parameterType="model.deliveryOrder.DeliveryOrder">
+        delete from t_deliveryOrder where id=#{id} and `user`=#{user.id};
+    </delete>
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from t_deliveryOrder
+        <where>
+            id in
+            <foreach collection="list" item="item" separator="," open="(" close=")">#{item,jdbcType=VARCHAR}</foreach>
+            and `user`=#{user.id};
+        </where>
+    </delete>
+
+    <update id="update" parameterType="model.deliveryOrder.DeliveryOrder">
+        UPDATE t_deliveryOrder
+        <include refid="forUpdate"/>
+        WHERE (`id`=#{id} and `user`=#{user.id});
+    </update>
+
+    <select id="select" parameterType="java.util.Map" resultMap="resultMap">
+        select * from t_deliveryOrder<include refid="condition"/>;
+    </select>
+    <select id="selectOne" parameterType="model.deliveryOrder.DeliveryOrder" resultMap="resultMap">
+        select * from t_deliveryOrder<include refid="condition"/>;
+    </select>
+    <select id="fastFind" parameterType="java.util.Map" resultType="java.util.Map">
+        select id,name from t_deliveryOrder<include refid="condition"/>;
+    </select>
+    <select id="selectOneById" parameterType="java.lang.String" resultMap="resultMap">
+        select * from t_deliveryOrder where id=#{id};
+    </select>
+    <select id="selectAll" resultMap="resultMap">
+        select * from t_deliveryOrder ;
+    </select>
+    <select id="findByPage" parameterType="java.util.Map" resultType="java.util.Map">
+        select * from t_deliveryOrder
+        <include refid="condition"/>
+        limit #{start},#{end};
+    </select>
+    <select id="countTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select Count(id) from t_deliveryOrder<include refid="condition"/>;
+    </select>
+    <select id="selectTopX" parameterType="java.util.Map" resultMap="resultMap">
+        select * from t_deliveryOrder
+        <include refid="condition"/>
+        order by (#{orderBy}) desc limit 0,#{topX};
+    </select>
+    <select id="randomSelectTopX" parameterType="java.util.Map" resultMap="resultMap">
+        SELECT * FROM (
+        SELECT * ,ROUND(RAND()) AS newno FROM t_deliveryOrder GROUP BY id
+        )AS t
+        <include refid="condition"/>
+        ORDER BY t.newno asc LIMIT #{topX}
+    </select>
+    <!--功能扩展-->
+</mapper>

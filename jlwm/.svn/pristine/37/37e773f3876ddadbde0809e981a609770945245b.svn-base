@@ -1,0 +1,70 @@
+﻿body {
+    background-color: #fff;
+    border: solid 10px #ffffff;
+    color: rgba(0, 0, 0, 0.99);
+    font-size: 12px;
+    font-family: Helvetica Neue,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,Noto Sans CJK SC,WenQuanYi Micro Hei,Arial,sans-serif;
+    margin: 0;
+    padding: 0;
+}
+a{
+	font-family:"宋体";
+    color:#0094ff;
+    text-decoration:underline;
+    text-decoration-line:none;
+}
+.highlight {
+    padding: 9px 14px;
+    margin-bottom: 14px;
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    border-radius: 4px;
+}
+.kb-form-item{margin-top:10px;padding-left:20px;}
+.kb-form-item label{display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 700;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    box-sizing: border-box;
+}
+.bs-callout {
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #eee;
+    border-left-width: 1px;
+    border-left-color: rgb(238, 238, 238);
+    border-left-width: 5px;
+    border-radius: 3px;
+}
+.kb-form-item{margin-top:10px;padding-left:20px;}
+.kb-form-item label{display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 700;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    box-sizing: border-box;
+}
+.bs-callout-danger {
+    border-left-color: #ce4844;
+}
+.bs-callout-danger h4 {
+    color: #ce4844;
+}
+.bs-callout-warning {
+    border-left-color: #aa6708;
+}
+.bs-callout-warning h4 {
+    color: #aa6708;
+}
+.bs-callout-info {
+    border-left-color: #1b809e;
+}
+.bs-callout-info h4 {
+    color: #1b809e;
+}
+ 

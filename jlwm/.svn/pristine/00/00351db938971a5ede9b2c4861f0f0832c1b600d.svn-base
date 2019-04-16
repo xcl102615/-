@@ -1,0 +1,129 @@
+package model.food;
+
+import model.foodType.FoodType;
+import model.shop.Shop;
+import model.type.Type;
+import project.model.BaseObject;
+
+import java.util.List;
+
+/***
+ * 食品类
+ */
+public class Food extends BaseObject {
+    private Shop shop;
+    //    店铺
+    private FoodType foodType;
+    //  店铺食品分类
+    private Type type;
+    //    平台类别
+    private String image;
+    //  食品图片
+    private double price;
+    //    如果商品没有其他规格时候的价格
+    private List<FoodFormat>foodFormats;
+    //规格
+    private int monthSaleNum;
+    //    月销售
+    private int saleCount;
+    //    销售总量
+    private int list;
+    //  排序方式
+    private int number;
+    //库存数量
+
+    public Shop getShop() {
+        return shop;
+    }
+
+    public void setShop(Shop shop) {
+        this.shop = shop;
+    }
+
+    public FoodType getFoodType() {
+        return foodType;
+    }
+
+    public void setFoodType(FoodType foodType) {
+        this.foodType = foodType;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public List<FoodFormat> getFoodFormats() {
+        return foodFormats;
+    }
+
+    public void setFoodFormats(List<FoodFormat> foodFormats) {
+        this.foodFormats = foodFormats;
+    }
+
+    public int getMonthSaleNum() {
+        return monthSaleNum;
+    }
+
+    public void setMonthSaleNum(int monthSaleNum) {
+        this.monthSaleNum = monthSaleNum;
+    }
+
+    public int getSaleCount() {
+        return saleCount;
+    }
+
+    public void setSaleCount(int saleCount) {
+        this.saleCount = saleCount;
+    }
+
+    public int getList() {
+        return list;
+    }
+
+    public void setList(int list) {
+        this.list = list;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    @Override
+    public String toString() {
+        return "Food{" +
+                "shop=" + shop +
+                ", foodType=" + foodType +
+                ", type=" + type +
+                ", image='" + image + '\'' +
+                ", price=" + price +
+                ", foodFormats=" + foodFormats +
+                ", monthSaleNum=" + monthSaleNum +
+                ", saleCount=" + saleCount +
+                ", list=" + list +
+                '}';
+    }
+}

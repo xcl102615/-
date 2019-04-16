@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.comment.CommentReplyDao">
+
+    <resultMap id="BaseResultMap" type="model.comment.CommentReply">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="createDate" property="createDate"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+    </resultMap>
+
+    <!--扩展 resultMap-->
+    <resultMap id="resultMap" type="model.comment.CommentReply" extends="BaseResultMap">
+        <result column="content" property="content"/>
+        <association property="user" javaType="model.user.User">
+            <id column="user" property="id"/>
+        </association>
+        <association property="shop" javaType="model.shop.Shop">
+            <id column="shop" property="id"/>
+        </association>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+--         id,name,createDate,status,description,password
+      *
+    </sql>
+    <sql id="columns">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="createDate != null">
+                createDate,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+           
+            <if test="content != null">
+                content,
+            </if>
+            <if test="user != null">
+                user,
+            </if>
+            <if test="shop != null">
+                shop,
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="createDate != null">
+                #{createDate},
+            </if>
+            <if test="description != null">
+                #{description},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            
+            <if test="content != null">
+                #{content},
+            </if>
+            <if test="user != null">
+                #{user.id},
+            </if>
+            <if test="shop != null">
+                #{shop.id},
+            </if>
+
+        </trim>
+    </sql>
+    <sql id="columnsItemsValue">
+        <trim suffix="" suffixOverrides=",">
+            <if test="item.id != null">
+                #{item.id},
+            </if>
+            <if test="item.name != null">
+                #{item.name},
+            </if>
+            <if test="item.createDate != null">
+                #{item.createDate},
+            </if>
+            <if test="item.status != null">
+                #{item.status},
+            </if>
+            <if test="item.description != null">
+                #{item.description},
+            </if>
+           
+            <if test="item.content != null">
+                #{item.content},
+            </if>
+            <if test="item.user != null">
+                #{item.user.id},
+            </if>
+            <if test="item.shop != null">
+                #{item.shop.id},
+            </if>
+
+        </trim>
+    </sql>
+    <!--涉及条件的统一配置，特殊需求在方法上改动-->
+    <sql id="condition">
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="and">
+                <if test="id!=null">
+                    id = #{id} and
+                </if>
+                <if test="shop!=null">
+                    id = #{shop.id} and
+                </if>
+                <!--
+                    根据name模糊查询
+                -->
+            </trim>
+        </where>
+    </sql>
+    <!--更新操作 统一配置-->
+    <sql id="forUpdate">
+        set
+        <trim suffix="" suffixOverrides=",">
+            <if test="name!=null">
+                `name`=#{name},
+            </if>
+            <if test="status!=null">
+                `status`=#{status},
+            </if>
+            <if test="description!=null">
+                `description`=#{description},
+            </if>
+            <if test="createDate!=null">
+                `createDate`=#{createDate},
+            </if>
+            <if test="content!=null">
+                content = #{content},
+            </if>
+            <if test="user!=null">
+                user = #{user.id},
+            </if>
+            <if test="shop!=null">
+                shop = #{shop.id},
+            </if>
+
+        </trim>
+    </sql>
+    <!--组件需要以下方法-->
+    <insert id="save" parameterType="model.comment.CommentReply">
+        insert into t_commentReply (<include refid="columns"/>) values (<include refid="columnsValue"/>);
+    </insert>
+
+    <delete id="delete" parameterType="model.comment.CommentReply">
+        delete from t_commentReply<include refid="condition"/>;
+    </delete>
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from t_commentReply
+        <where>
+            id in
+            <foreach collection="list" item="item" separator="," open="(" close=")">#{item,jdbcType=VARCHAR}</foreach>
+        </where>
+    </delete>
+
+    <update id="update" parameterType="model.comment.CommentReply">
+        UPDATE t_commentReply
+        <include refid="forUpdate"/>
+        WHERE (`id`=#{id} and `shop`=#{shop.id});
+    </update>
+
+    <select id="select" parameterType="java.util.Map" resultMap="resultMap">
+        select * from t_commentReply<include refid="condition"/>;
+    </select>
+    <select id="selectOne" parameterType="model.foodType.FoodType" resultMap="resultMap">
+        select * from t_commentReply<include refid="condition"/>;
+    </select>
+    <select id="fastFind" parameterType="java.util.Map" resultType="java.util.Map">
+        select id,name from t_commentReply <include refid="condition"/>;
+    </select>
+    <select id="selectOneById" parameterType="java.lang.String" resultMap="resultMap">
+        select * from t_commentReply where id=#{id};
+    </select>
+    <select id="selectAll" resultMap="resultMap">
+        select * from t_commentReply ;
+    </select>
+    <select id="findByPage" parameterType="java.util.Map" resultType="java.util.Map">
+        select * from t_commentReply
+        <include refid="condition"/>
+        limit #{start},#{end};
+    </select>
+    <select id="countTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select Count(id) from t_commentReply <include refid="condition"/>;
+    </select>
+    <select id="selectTopX" parameterType="java.util.Map" resultMap="resultMap">
+        select * from t_commentReply <include refid="condition"/> order by (#{orderBy}) desc limit 0,#{topX};
+    </select>
+    <select id="randomSelectTopX" parameterType="java.util.Map" resultMap="resultMap">
+      SELECT * FROM (
+        SELECT * ,ROUND(RAND()) AS newno FROM t_commentReply GROUP BY id
+      )AS t <include refid="condition"/> ORDER BY t.newno asc LIMIT #{topX}
+    </select>
+    <!--功能扩展-->
+</mapper>

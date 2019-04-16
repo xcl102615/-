@@ -1,0 +1,175 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="../../header/delivery.jsp" %>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Realm - Calendar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Bluth Company">
+  </head>
+  <body>
+  <div id="wrap">
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <div class="logo">
+            <img style="height: 30px;width: 105px" src="<%=basePath%>/plugins/assets/img/jlwmlogo.png" alt="Realm Admin Template">
+          </div>
+          <a class="btn btn-navbar visible-phone" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="btn btn-navbar slide_menu_left visible-tablet">
+
+          </a>      <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+
+          <div class="top-menu visible-desktop">
+            <ul class="pull-left">
+              <li><a id="messages" data-notification="2" href="#"><i class="icon-envelope"></i> 消息</a></li>
+              <li><a id="notifications" data-notification="3" href="#"><i class="icon-globe"></i> 通知</a></li>
+            </ul>
+            <ul class="pull-right">
+              <li><a id="logOut"><i class="icon-off"></i> 退出登录</a></li>
+            </ul>
+          </div>
+
+          <div class="top-menu visible-phone visible-tablet">
+            <ul class="pull-right">
+              <li><a title="link to View all Messages page, no popover in phone view or tablet" href="#"><i class="icon-envelope"></i></a></li>
+              <li><a title="link to View all Notifications page, no popover in phone view or tablet" href="#"><i class="icon-globe"></i></a></li>
+              <li><a href="login.jsp"><i class="icon-off"></i></a></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+
+      <!-- Side menu -->
+      <div class="sidebar-nav nav-collapse collapse">
+        <div class="user_side clearfix">
+          <img id="userImg" alt="Odinn god of Thunder">
+          <h5 id="userName">用户名</h5>
+          <a href="#"><i class="icon-cog"></i> 设置</a>
+        </div>
+        <div class="accordion" id="accordion2">
+          <div class="accordion-group">
+            <div class="accordion-heading">
+              <a class="accordion-toggle b_C3F7A7 collapsed" data-toggle="collapse" data-parent="#accordion2"
+                 href="#collapse1"><i class="icon-magic"></i> <span>订单管理</span></a>
+            </div>
+            <div id="collapse1" class="accordion-body collapse">
+              <div class="accordion-inner">
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/ui_features.jsp"><i
+                        class="icon-star"></i> 平台可接订单</a>
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/forms.jsp"><i
+                        class="icon-list-alt"></i> 我的所有订单</a>
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/tables.jsp"><i
+                        class="icon-table"></i> 我配送中订单</a>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-group">
+            <div class="accordion-heading">
+              <a class="accordion-toggle b_9FDDF6 collapsed" data-toggle="collapse" data-parent="#accordion2"
+                 href="#collapse2"><i class="icon-reorder"></i> <span>资金管理</span></a>
+            </div>
+            <div id="collapse2" class="accordion-body collapse">
+              <div class="accordion-inner">
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/notifications.jsp"><i
+                        class="icon-rss"></i> 个人资料</a>
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/calendar.jsp"><i
+                        class="icon-calendar"></i> 提现</a>
+                <a class="accordion-toggle" href="<%=basePath%>/admin/delivery/gallery.jsp"><i
+                        class="icon-picture"></i> 提现记录</a>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-group">
+            <div class="accordion-heading">
+              <a class="accordion-toggle b_9FDDF6 collapsed" data-toggle="collapse" data-parent="#accordion2"
+                 href="#collapse3"><i class="icon-reorder"></i> <span>设置</span></a>
+            </div>
+            <div id="collapse3" class="accordion-body collapse">
+              <div class="accordion-inner">
+                <a class="accordion-toggle" href="#"><i
+                        class="icon-rss"></i> 定位</a>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /Side menu -->
+
+      <!-- Main window -->
+      <div class="main_container" id="forms_page">
+        <div class="row-fluid">
+          <div class="widget widget-padding span12">
+            <div class="widget-header">
+              <i class="icon-list-alt"></i><h5>提现管理</h5>
+              <div class="widget-buttons">
+                <a href="#" data-title="Collapse" data-collapsed="false" class="tip collapse"><i class="icon-chevron-up"></i></a>
+              </div>
+            </div>
+            <div class="widget-body">
+              <div class="widget-forms clearfix">
+                <form class="form-horizontal">
+
+                  <div class="control-group">
+                    <label class="control-label">提现金额</label>
+                    <div class="controls">
+                      <div class="input-append">
+                        <input class="span24"  type="text" placeholder="5.000"><span class="add-on">$</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </form>
+              </div>
+            </div>
+            <div class="widget-footer">
+              <button class="btn btn-primary" type="submit">Save</button>
+              <button class="btn" type="button">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /Main window -->
+
+    </div><!--/.fluid-container-->
+  </div><!-- wrap ends-->
+  </body>
+  <script>
+    $(function () {
+      //获取用户信息
+      doDataAllAsc("<%=basePath%>/user/getCurrentUser","",function (data) {
+        if(data.code<=0){
+          alert("用户未登录");
+          window.location.href="<%=basePath%>/admin/delivery/login.jsp";
+        }else{
+          //设置用户信息
+          $("#userName").html(data.obj.name);
+          $("#userImg").attr("src",data.obj.photo);
+        }
+      })
+
+      //退出登录
+      $("#logOut").click(function () {
+        doDataAllAsc("<%=basePath%>/user/logOut","",function (data) {
+          if(data.code<=0){
+            aleret("注销失败");
+          }else{
+            window.location.href="<%=basePath%>/admin/delivery/login.jsp";
+          }
+        })
+      });
+    })
+
+  </script>
+</html>

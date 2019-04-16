@@ -1,0 +1,19 @@
+package service.shop.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.service.BaseService;
+import service.shop.ShopService;
+
+
+@Service
+public class ShopServiceImpl extends BaseService implements ShopService {
+    @Autowired
+    private dao.shop.ShopMapper dao;
+
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+}

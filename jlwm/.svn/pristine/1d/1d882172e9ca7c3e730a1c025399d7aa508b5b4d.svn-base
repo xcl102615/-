@@ -1,0 +1,61 @@
+package controller.recruit.impl;
+
+import com.sun.xml.internal.xsom.impl.scd.Iterators;
+import model.recruit.Recruit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import project.model.AjaxResult;
+import project.util.StringUtils;
+
+import java.util.List;
+import java.util.Map;
+
+/***
+ * 用户控制层接口
+ */
+@RequestMapping(value = "recruit")
+@RestController
+public class RecruitController implements controller.recruit.RecruitController {
+    private Logger log = LoggerFactory.getLogger(RecruitController.class);
+
+    @Autowired
+    private service.recruit.impl.recruitServiceImpl bll;
+    @GetMapping(value = "addRecruit")
+    public AjaxResult addApplicationInfo(@RequestBody Recruit recruit) {
+        if (StringUtils.objIsNull(recruit)) {
+            return AjaxResult.build("0", "参数错误");
+        }
+        recruit.setId(StringUtils.getUUID());
+        return bll.save(recruit);
+    }
+
+
+    @GetMapping(value = "lookAllRecruitInfo")
+    public AjaxResult lookAllRecruitInfo() {
+        List<Recruit> allInfo= (List<Recruit>) bll.selectAll().getObj();
+        if(allInfo==null&&allInfo.size()<=0){
+            AjaxResult.build("0","查询数据不存在");
+        }
+        return bll.selectAll();
+    }
+
+    @GetMapping(value = "lookRecruitInfo")
+    public AjaxResult lookApplicationInfo(@RequestBody Map map) {
+        if(StringUtils.objIsNull(map)){
+            return AjaxResult.build("0", "参数错误");
+        }
+        return bll.select(map);
+    }
+    @GetMapping(value = "delRecruit")
+    public AjaxResult delApplicationInfo(@RequestBody Recruit recruit) {
+        if(StringUtils.objIsNull(recruit.getId())){
+            return AjaxResult.build("0", "参数错误");
+        }
+        return bll.delete(recruit);
+    }
+
+
+
+}

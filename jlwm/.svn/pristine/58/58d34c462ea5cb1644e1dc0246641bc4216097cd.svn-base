@@ -1,0 +1,154 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="../../header/login.jsp" %>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>找回密码</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Bluth Company">
+    <style>
+
+        input {
+            display: block;
+            width: 290px;
+            line-height: 40px;
+            margin: 10px 0;
+            padding: 0 10px;
+            outline: none;
+            border: 1px solid #c8cccf;
+            border-radius: 4px;
+            color: #6a6f77;
+        }
+    </style>
+    <script type="text/javascript" src="<%=basePath%>/plugins/jquery/jigsaw.js"></script>
+</head>
+<body>
+<div id="wrap">
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="row-fluid">
+                    <div class="widget container-narrow">
+                        <div class="widget-header">
+                            <i class="icon-user"></i>
+                            <h5>找回密码</h5>
+                        </div>
+                        <div class="widget-body clearfix" style="padding:25px;">
+                            <form>
+                                <div class="control-group">
+                                    <div class="controls">
+                                        <input class="btn-block" type="text" id="phone" placeholder="手机号">
+                                    </div>
+                                </div>
+                                <div class="controls">
+                                    <div class="container">
+                                        <div id="captcha" style="position: relative"></div>
+                                        <div id="msg"></div>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <input id="btncode" type="button" class="btn pull-right btn-danger disabled" value="免费获取验证码"/>
+                                    <label class="inline">
+                                        <input class="btn-block" type="text" id="code" placeholder="验证码">
+                                    </label>
+                                </div>
+                                <div class="control-group">
+                                    <div class="controls">
+                                        <input class="btn-block" type="password" id="password1" placeholder="新密码">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <div class="controls">
+                                        <input class="btn-block" type="password" id="password2" placeholder="确认密码">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <button id="sumbit" type="button" class="btn pull-center btn-success">提交</button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div><!--/row-fluid-->
+            </div><!--/span10-->
+        </div><!--/row-fluid-->
+    </div><!--/.fluid-container-->
+</div><!-- wrap ends-->
+</body>
+
+<script>
+    $(function () {
+        var code="";
+        var phone
+        jigsaw.init(document.getElementById('captcha'), function () {
+            $('#msg').html("验证通过");
+            $("#btncode").attr("class", "btn pull-right btn-primary");
+        })
+        //获取验证码
+        $("body").on("click", ".btn-primary", function () {
+            phone = $("#phone").val();
+            if(isPhoneNo(phone)){
+             doDataAll("<%=basePath%>/sendMessage?mobile="+phone,{"mobile":phone},function (data) {
+                    if (data.code>0){
+                        code=data.obj;
+                    }else {
+                        alert("获取验证码失败");
+                    }
+                })
+            }else{
+                alert("手机号不正确");
+            }
+            alert(1)
+            time(this)
+
+        });
+
+        //提交按钮
+        $("#sumbit").click(function () {
+            if(code.trim()!=""&&code==$("#code").val()){
+                //验证通过
+                var password1=$("#password1").val().trim();
+                var password2=$("#password2").val().trim();
+                if (password1 == "" || password2==""||password1!=password2){
+                    alert("密码不一致");
+                } else{
+                    doDataAll("<%=basePath%>/user/upPwdByPhone",{"phone":phone,"password":password1},function (data) {
+                        if(data.code>0){
+                            alert("修改成功");
+                            window.location.href="<%=basePath%>/delivery/login";
+                        }else {
+                            alert("修改失败");
+                        }
+                    })
+                }
+            }else {
+                alert("验证码错误");
+            }
+        })
+    })
+
+    //验证手机号
+    function isPhoneNo(phone) {
+        var pattern = /^1[34578]\d{9}$/;
+        return pattern.test(phone);
+    }
+
+    //设置60s只能获取一次验证码
+    var wait=60;
+    function time(o) {
+        if (wait == 0) {
+            o.removeAttribute("disabled");
+            o.value="免费获取验证码";
+            wait = 60;
+        } else {
+            o.setAttribute("disabled", true);
+            o.value="重新发送(" + wait + ")";
+            wait--;
+            setTimeout(function() {
+                    time(o)
+                },
+                1000)
+        }
+    }
+</script>
+</html>

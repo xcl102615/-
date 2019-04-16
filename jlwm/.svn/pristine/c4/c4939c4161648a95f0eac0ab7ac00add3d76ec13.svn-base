@@ -1,0 +1,19 @@
+package service.order.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import project.dao.BaseDao;
+import project.service.BaseService;
+import service.order.OrderService;
+
+
+@Service
+public class OrderServiceImpl extends BaseService implements OrderService {
+    @Autowired
+    private dao.order.orderMapper dao;
+
+    @Override
+    protected BaseDao getDao() {
+        return dao;
+    }
+}
